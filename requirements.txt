@@ -1,0 +1,13 @@
+# What OptionsCone needs to run, at the versions it was built and tested with.
+numpy==2.3.4
+pandas==2.3.3
+scipy==1.16.3
+yfinance==0.2.66
+pyarrow==22.0.0
+curl_cffi==0.13.0
+requests==2.32.4
+platformdirs==4.5.0
+pywebview==6.2.1
+# yfinance reads the earnings calendar with it; without it the dates are
+# silently empty.
+lxml==6.0.2

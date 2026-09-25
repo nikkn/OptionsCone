@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Packaging
+build/
+dist/
+*.spec
+THIRD_PARTY_LICENSES.txt
+
+# Local data (run from source, everything is written into the project folder)
+archive/
+data/
+logs/
+charts/*.html
+charts/tickers/
+webview/
+
+# Editors and OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

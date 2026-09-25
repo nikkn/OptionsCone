@@ -1,0 +1,2 @@
+# Packaging only.
+pyinstaller==6.18.0

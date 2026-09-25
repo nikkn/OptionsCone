@@ -24,6 +24,7 @@ HEAD = """<meta charset="utf-8">
   --line:#e3e2d9; --line-2:#cfcec2; --spot:#b8891f; --up:#3f6f4a; --dn:#a8443c;
   --q0:#f0f6fe; --p1:#cde2fb; --p2:#9ec5f4; --p3:#6da7ec; --p4:#3987e5; --p5:#256abf; --p6:#184f95; --p7:#0d366b;
   --on-light:#12130f; --on-dark:#ffffff; --warn-bg:#fdf3e0; --warn-ink:#7a5510; --warn-line:#e8cf9c;
+  --bad-bg:#fdecea; --bad-ink:#8f1d16; --bad-line:#d9564b;
   --future:#f4f3ed; --track:#c2410c; --draw:#3f6f4a; --earn:#7c4bb8;
   --m5:#0f766e; --m10:#7c4bb8;
 }
@@ -32,6 +33,7 @@ HEAD = """<meta charset="utf-8">
   --line:#2c2e33; --line-2:#3c3f45; --spot:#d6a53c; --up:#6aa87a; --dn:#d1706a;
   --q0:#0f1f33; --p1:#16304d; --p2:#1b4272; --p3:#20549a; --p4:#2a6ac0; --p5:#3987e5; --p6:#6da7ec; --p7:#9ec5f4;
   --on-light:#f2f1ea; --on-dark:#0b1220; --warn-bg:#2e2515; --warn-ink:#e8c887; --warn-line:#5c4a22;
+  --bad-bg:#3a1714; --bad-ink:#ffb4ab; --bad-line:#b8453c;
   --future:#191b1f; --track:#fb923c; --draw:#6aa87a; --earn:#b08ce8;
   --m5:#2dd4bf; --m10:#c4a3f0;
 }}
@@ -40,6 +42,7 @@ HEAD = """<meta charset="utf-8">
   --line:#2c2e33; --line-2:#3c3f45; --spot:#d6a53c; --up:#6aa87a; --dn:#d1706a;
   --q0:#0f1f33; --p1:#16304d; --p2:#1b4272; --p3:#20549a; --p4:#2a6ac0; --p5:#3987e5; --p6:#6da7ec; --p7:#9ec5f4;
   --on-light:#f2f1ea; --on-dark:#0b1220; --warn-bg:#2e2515; --warn-ink:#e8c887; --warn-line:#5c4a22;
+  --bad-bg:#3a1714; --bad-ink:#ffb4ab; --bad-line:#b8453c;
   --future:#191b1f; --track:#fb923c; --draw:#6aa87a; --earn:#b08ce8;
   --m5:#2dd4bf; --m10:#c4a3f0;
 }
@@ -110,6 +113,10 @@ canvas.drawing{cursor:crosshair}
 .warn{display:flex;gap:9px;align-items:flex-start;background:var(--warn-bg);border:1px solid var(--warn-line);
   color:var(--warn-ink);padding:10px 13px;border-radius:3px;font-size:12.5px;margin-bottom:18px}
 .warn b{font-weight:600}
+.warn.bad{background:var(--bad-bg);border:2px solid var(--bad-line);color:var(--bad-ink);
+  font-size:14px;line-height:1.5;padding:13px 16px}
+.warn.bad b:first-child{font-size:17px}
+#ab-status.bad{color:var(--bad-ink);font-weight:600;white-space:normal}
 .meta{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .meta div{display:flex;flex-direction:column;gap:3px}
 .meta .k{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
@@ -517,12 +524,33 @@ function probColor(p,alpha){
   return 'rgba('+_lut[k]+','+_lut[k+1]+','+_lut[k+2]+','+(alpha===undefined?1:alpha)+')';
 }
 
+// Which download the chart shows. Later downloads taken outside trading hours
+// are archived but not used, and the line says so.
+function provText(a){
+  if(!a)return '';
+  const t=s=>s.replace('T',' ').slice(0,16);
+  let s='captured '+t(a.captured)+'  ·  '+a.n_pulls+' pull'+(a.n_pulls>1?'s':'')+' archived';
+  if(a.latest&&a.latest!==a.captured&&a.latest_state&&a.latest_state!=='REGULAR')
+    s+='  ·  newer download from '+t(a.latest)+' not used (outside trading hours)';
+  return s;
+}
+
 function build(){
   if(!DATA[cur])return;  // app shell: data not loaded yet
   const d=DATA[cur];
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.k===cur));
+  // No download of this ticker was taken during regular trading hours, so the
+  // chart rests on placeholder quotes. Said loudly, above the chart.
+  const _when={PRE:'before the US market opened',PREPRE:'before the US market opened',
+    POST:'after the US market closed',POSTPOST:'after the US market closed',
+    CLOSED:'while the US market was closed'}[d.state]||'outside regular US trading hours';
+  const _cap=d.archive&&d.archive.captured?' ('+d.archive.captured.replace('T',' ').slice(0,16)+')':'';
   document.getElementById('warn').innerHTML = d.state!=='REGULAR'
-    ? '<div class="warn"><b>&#9888;</b><span>Quotes captured while the market was <b>'+d.state+'</b>. Outside regular hours the feed returns placeholder spreads, so these probabilities are provisional until re-sampled during the session.</span></div>' : '';
+    ? '<div class="warn bad"><b>&#9888;</b><span><b>Not reliable.</b> These quotes were downloaded '+
+      _when+_cap+'. Outside trading hours the option feed returns placeholder prices, '+
+      'so the probabilities, volatilities and spreads below can be badly wrong. '+
+      '<b>Download '+cur+' again during US trading hours</b>: 9:30 to 16:00 New York time, '+
+      'usually 15:30 to 22:00 in Central Europe.</span></div>' : '';
   document.getElementById('meta').innerHTML=[
     ['Spot',d.spot.toFixed(2)],['As of',d.asof],['Contracts',d.n],
     ['Realized Vola',(d.rv.ewma.sigma*100).toFixed(1)+'%'],
@@ -531,9 +559,7 @@ function build(){
   ].map(([k,v])=>'<div><span class="k">'+k+'</span><span class="v mono">'+v+'</span></div>').join('');
   draw();table();legend();readout();dqRender();
   const pv=document.getElementById('prov');
-  if(pv){const a=d.archive;
-    pv.textContent=a?('captured '+a.captured.replace('T',' ').slice(0,16)+
-      '  ·  '+a.n_pulls+' pull'+(a.n_pulls>1?'s':'')+' archived'):'';}
+  if(pv)pv.textContent=provText(d.archive);
   const fl=document.getElementById('fieldlab');
   if(fl)fl.textContent=COLOUR[colourBy].label;
   // Jump to the latest bars and draw again, so the price range fits the bars
@@ -1586,9 +1612,7 @@ function readout(){
 function fieldLabel(){
   const d=DATA[cur];
   const pv=document.getElementById('prov');
-  if(pv){const a=d&&d.archive;
-    pv.textContent=a?('captured '+a.captured.replace('T',' ').slice(0,16)+
-      '  ·  '+a.n_pulls+' pull'+(a.n_pulls>1?'s':'')+' archived'):'';}
+  if(pv)pv.textContent=provText(d&&d.archive);
   const fl=document.getElementById('fieldlab');
   if(fl)fl.textContent=COLOUR[colourBy].label;
 }
@@ -1875,10 +1899,11 @@ APP_JS = """<script>
     document.getElementById('ab-browser').onclick=function(){api().open_in_browser();};
     document.getElementById('ab-folder').onclick=function(){api().open_data_folder();};
     api().status().then(function(s){ if(!s)return;
-      if(s.busy){setBusy(true);st.textContent='working...';} else st.textContent=s.note||'';});
+      if(s.busy){setBusy(true);st.textContent='working...';}
+      else{st.textContent=s.note||'';st.classList.toggle('bad',!!s.alert);}});
   }
   var pb=document.getElementById('ab-prog'), pbi=pb&&pb.firstChild;
-  window.ocProgress=function(line,frac){st.textContent=line;
+  window.ocProgress=function(line,frac){st.textContent=line;st.classList.remove('bad');
     if(pb&&frac!=null){pb.hidden=false;pbi.style.width=(Math.max(0,Math.min(1,frac))*100).toFixed(1)+'%';}};
   window.ocDone=function(ok,msg){setBusy(false);st.textContent=msg;if(pb)pb.hidden=true;};
   if(api())init(); else window.addEventListener('pywebviewready',init);

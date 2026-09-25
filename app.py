@@ -210,6 +210,36 @@ def pipeline(symbols, weeklies=False):
     return updated, failed
 
 
+def closed_market_note(symbols):
+    """Warning for tickers whose download fell outside regular trading hours.
+
+    Empty when every chart rests on a download taken while the market was
+    open and nothing newer was skipped.
+    """
+    bad, kept = [], []
+    for sym in symbols:
+        try:
+            d = json.loads((sub("data") / "tickers" / f"{sym}.json")
+                           .read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        a = d.get("archive") or {}
+        if d.get("state") != "REGULAR":
+            bad.append(sym)
+        elif a.get("latest_state") not in (None, "REGULAR"):
+            when = str(a.get("captured", ""))[:16].replace("T", " ")
+            kept.append(f"{sym} {when}")
+    parts = []
+    if bad:
+        parts.append(f"NOT RELIABLE: {', '.join(bad)} downloaded outside US "
+                     "trading hours. Download again between 15:30 and 22:00 "
+                     "CET.")
+    if kept:
+        parts.append("Market closed: the chart keeps the last download taken "
+                     f"during trading hours ({', '.join(kept)}).")
+    return "  ".join(parts)
+
+
 class Api:
     """What the page can call. Names starting with _ are not exposed."""
 
@@ -225,7 +255,9 @@ class Api:
         held = sorted(tickerfiles.held())
         note = (f"{len(held)} ticker{'s' if len(held) != 1 else ''} held  ·  "
                 f"data in {home()}") if held else f"data in {home()}"
-        return {"busy": self._busy, "held": held, "note": note}
+        alert = getattr(self, "_alert", "")
+        return {"busy": self._busy, "held": held,
+                "note": alert or note, "alert": bool(alert)}
 
     def refresh(self, symbols, weeklies=False, current=""):
         syms = [str(s).strip().upper() for s in (symbols or []) if str(s).strip()]
@@ -342,6 +374,7 @@ class Api:
 
     def _work(self, syms, weeklies, focus):
         ok, msg = True, ""
+        self._alert = ""
         with open(log_path(), "a", encoding="utf-8") as logf:
             tee = _Tee(logf, self._progress)
             saved = sys.stdout, sys.stderr
@@ -358,6 +391,7 @@ class Api:
                         msg += "  ·  failed: " + ", ".join(failed)
                     if focus and focus not in updated:
                         focus = updated[0]
+                    self._alert = closed_market_note(updated)
             except Exception as e:
                 ok, msg = False, f"failed: {e}"
                 traceback.print_exc()

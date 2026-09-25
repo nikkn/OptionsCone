@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OptionsCone: probability of touch for every listed option</title>
-<meta name="description" content="Free, open-source Windows app that shows the probability of a stock touching or finishing beyond every listed option strike before expiry, from option prices and from a bootstrap of the stock's own history.">
+<title>OptionsCone: how likely is a stock to reach a price before a date?</title>
+<meta name="description" content="Free, open-source Windows app that shows the probability of a stock touching or finishing beyond any listed strike before expiry, from option prices and ten years of history. For stop levels, price targets, break-even and option trades.">
 <link rel="canonical" href="https://nikkn.github.io/OptionsCone/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
-<meta property="og:title" content="OptionsCone: probability of touch for every listed option">
+<meta property="og:title" content="OptionsCone: how likely is a stock to reach a price before a date?">
 <meta property="og:description" content="See how likely a stock is to reach each strike before expiry. Implied and historical models side by side. Free and open source.">
 <meta property="og:url" content="https://nikkn.github.io/OptionsCone/">
 <meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/app.png">
@@ -42,6 +42,8 @@
       "acceptedAnswer": { "@type": "Answer", "text": "The probability that the stock price reaches a given strike at any time before expiry, even if it moves away again afterwards. It is always at least as high as the probability of finishing beyond the strike, and often about twice as high." } },
     { "@type": "Question", "name": "Is delta the probability of an option expiring in the money?",
       "acceptedAnswer": { "@type": "Answer", "text": "No. Delta is N(d1); the risk-neutral probability of finishing in the money is N(d2). The two differ by volatility times the square root of time, which is a wide gap on volatile stocks and long expiries." } },
+    { "@type": "Question", "name": "Can I use OptionsCone without trading options?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. For a stock position it shows how likely a stop level, a price target or the break-even price is to be reached within a given time, from option prices and from the stock's own last five and ten years." } },
     { "@type": "Question", "name": "Is OptionsCone free?",
       "acceptedAnswer": { "@type": "Answer", "text": "Yes. OptionsCone is free and open source under the GNU Affero General Public License v3.0. It needs no account and no API key." } },
     { "@type": "Question", "name": "Where does the data come from?",
@@ -58,6 +60,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="favicon.svg" alt="" width="24" height="24">OptionsCone</a>
     <nav class="site-nav" aria-label="Main">
+      <a href="use-cases.html">Use cases</a>
       <a href="manual.html">Manual</a>
       <a href="methods.html">Methods</a>
       <a href="https://github.com/nikkn/OptionsCone">GitHub</a>
@@ -70,8 +73,8 @@
 <div class="wrap">
 
   <div class="hero">
-    <h1>How likely is the stock to reach that strike before expiry?</h1>
-    <p class="lede">OptionsCone shows the probability of touching every listed option strike, for every expiry, as a cone on the price chart. It compares what the option market implies with what the stock's own history says. Free and open source, for Windows.</p>
+    <h1>How likely is the stock to reach that price before that date?</h1>
+    <p class="lede">OptionsCone shows, for every listed option strike and expiry, the probability that the price touches it or finishes beyond it, as a cone on the price chart. It compares what the option market implies with what the stock's own history says. For option traders and for anyone who holds stocks. Free and open source, for Windows.</p>
     <div class="btn-row">
       <a class="btn primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download for Windows</a>
       <a class="btn" href="https://github.com/nikkn/OptionsCone">Source code</a>
@@ -101,6 +104,41 @@
         <p>Pick a probability, say 30%, and each model draws a line through the listed strikes that match it at every expiry, above and below spot. Where the lines separate, the market and the stock's past disagree.</p>
       </div>
     </div>
+  </section>
+
+  <section id="use">
+    <p class="eyebrow">What it is for</p>
+    <h2>Not only for option traders</h2>
+    <p class="prose">Option prices contain the market's view of how far a stock can move. OptionsCone turns that view, and the stock's own history, into plain probabilities you can use whether or not you ever trade an option.</p>
+    <div class="grid3">
+      <div class="card">
+        <h3>Build realistic scenarios</h3>
+        <ul class="qlist">
+          <li>How far can the stock plausibly move by a given date, up and down?</li>
+          <li>What are the chances my price target is reached?</li>
+          <li>Will a losing position get back to break-even within a few months?</li>
+          <li>How does the market's view compare with the last 5 and 10 years?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Manage risk at entry</h3>
+        <ul class="qlist">
+          <li>What should I expect from this stock before opening a position, in both directions?</li>
+          <li>How likely is a stop level to be hit during my holding period?</li>
+          <li>Is a stop so tight that ordinary movement will trigger it?</li>
+          <li>Is there an earnings date inside my horizon?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Identify opportunities</h3>
+        <ul class="qlist">
+          <li>Where do the option market and the stock's history disagree?</li>
+          <li>Is volatility high because the stock is moving, or because of an event ahead?</li>
+          <li>Which strikes carry large positions and tight quotes?</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:22px"><a href="use-cases.html">See worked examples with real numbers</a>. The app shows probabilities, not recommendations.</p>
   </section>
 
   <section>
@@ -172,12 +210,16 @@
       <h2>Frequently asked</h2>
       <details class="faq"><summary>What is the probability of touch?</summary>
         <p>The probability that the stock price reaches a given strike at any time before expiry, even if it moves away again afterwards. It is always at least as high as the probability of finishing beyond the strike, and often about twice as high.</p></details>
+      <details class="faq"><summary>Do I need to trade options to use it?</summary>
+        <p>No. The option market is only the source of one of the three views. If you hold stocks, the same chart tells you how likely a stop level, a price target or your break-even is to be reached within a given time, by the market's pricing and by the stock's own history. See the <a href="use-cases.html">use cases</a>.</p></details>
       <details class="faq"><summary>What is the difference between the implied and the bootstrap models?</summary>
         <p>The implied model uses option prices, so it reflects what the market charges for the risk today. The bootstrap models replay the stock's own last five or ten years in random blocks of twenty trading days. They describe what happened, not what the market expects. Where they differ, the option market is pricing a move the history did not produce, or the other way round.</p></details>
       <details class="faq"><summary>Is OptionsCone free?</summary>
         <p>Yes. It is free and open source under the GNU Affero General Public License v3.0. There is no account, no subscription and no API key.</p></details>
       <details class="faq"><summary>Where does the data come from, and is it real time?</summary>
         <p>Option chains, prices and earnings dates come from Yahoo Finance through the yfinance library, fetched directly by your computer. Option quotes are delayed by about 15 minutes. Outside US trading hours the app uses the newest download taken during the session.</p></details>
+      <details class="faq"><summary>Why does the app say a chart is "not reliable"?</summary>
+        <p>Outside US trading hours the option feed returns placeholder prices, so a chain downloaded then gives a distorted cone. The app always uses the newest download taken during trading hours. If a ticker has none yet, it shows its chart with a red warning; download it again between 9:30 and 16:00 New York time, usually 15:30 to 22:00 in Central Europe.</p></details>
       <details class="faq"><summary>Does the app send my data anywhere?</summary>
         <p>No. It contacts Yahoo Finance for market data and Google Fonts for its typeface. There is no telemetry and no account. Everything you download stays in a folder on your computer.</p></details>
       <details class="faq"><summary>Why does Windows show a warning when I start it?</summary>
@@ -201,7 +243,7 @@
       <p>Not affiliated with Yahoo. Not financial advice.</p>
     </div>
     <div>
-      <p><a href="manual.html">Manual</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
+      <p><a href="use-cases.html">Use cases</a> &middot; <a href="manual.html">Manual</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
       <p><a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a></p>
     </div>
   </div>

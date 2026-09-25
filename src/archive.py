@@ -119,16 +119,10 @@ def load(symbol, stamp=None, prefer_state=None):
     asks for the newest one taken while the market was open. Falls back to the
     latest snapshot if none matches.
     """
-    idx = index(symbol)
-    if not idx:
-        return None
-    if stamp is None and prefer_state:
-        want = [r for r in idx if str(r.get("state") or
-                                      r.get("market_state")) == prefer_state]
-        row = want[-1] if want else idx[-1]
+    if stamp is None:
+        row = pick(symbol, prefer_state)
     else:
-        row = idx[-1] if stamp is None else next(
-            (r for r in idx if r["stamp"] == stamp), None)
+        row = next((r for r in index(symbol) if r["stamp"] == stamp), None)
     if not row:
         return None
     f = _dir(symbol) / row["file"]
@@ -136,6 +130,24 @@ def load(symbol, stamp=None, prefer_state=None):
         return None
     return (pd.read_parquet(f) if row.get("format") == "parquet"
             else pd.read_csv(f))
+
+
+def state_of(row):
+    """Market state recorded with a snapshot's index row."""
+    return str(row.get("state") or row.get("market_state"))
+
+
+def pick(symbol, prefer_state=None):
+    """Index row of the snapshot load() returns when no stamp is given: the
+    newest one taken in prefer_state, else the newest one."""
+    idx = index(symbol)
+    if not idx:
+        return None
+    if prefer_state:
+        want = [r for r in idx if state_of(r) == prefer_state]
+        if want:
+            return want[-1]
+    return idx[-1]
 
 
 def history(symbol, expiry=None, strike=None, option_type=None):

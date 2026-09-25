@@ -121,3 +121,5 @@ td:first-child { white-space: nowrap; }
 .site-foot .wrap { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; }
 .site-foot a { color: var(--ink-2); }
 .site-foot p { margin: 0 0 6px; }
+
+.qlist { margin: 0; padding-left: 18px; color: var(--ink-2); display: grid; gap: 8px; }

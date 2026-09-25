@@ -23,6 +23,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="favicon.svg" alt="" width="24" height="24">OptionsCone</a>
     <nav class="site-nav" aria-label="Main">
+      <a href="use-cases.html">Use cases</a>
       <a href="manual.html" aria-current="page">Manual</a>
       <a href="methods.html">Methods</a>
       <a href="https://github.com/nikkn/OptionsCone">GitHub</a>
@@ -77,7 +78,12 @@
       <tr><td><em>data folder</em></td><td>Opens the folder where the archive and the chart are stored.</td></tr>
     </table></div>
     <p>A progress bar and a status line show what is happening. The first download of a ticker takes a minute or two; later ones are similar, because every download is a complete new chain. When it finishes, the chart reloads on that ticker.</p>
-    <div class="note">Option quotes are only meaningful while the US market is open: 9:30 to 16:00 New York time, usually 15:30 to 22:00 in Central Europe. Downloads outside those hours are archived, but the chart keeps using the newest download taken during the session.</div>
+    <h3 id="hours">Download during US trading hours</h3>
+    <p>Option quotes are only meaningful while the US market is open: 9:30 to 16:00 New York time, usually 15:30 to 22:00 in Central Europe. Outside those hours the feed returns placeholder prices, and a cone built from them can be badly wrong. The app handles this in two ways:</p>
+    <ul>
+      <li><strong>An earlier download exists from trading hours:</strong> the chart keeps showing that one. The new download is archived but not used, and the line next to the ticker says so, for example <code>newer download from 2026-09-25 23:30 not used (outside trading hours)</code>.</li>
+      <li><strong>No download from trading hours exists yet</strong>, for example when a new ticker is first downloaded in the evening: the chart is shown with a red <em>Not reliable</em> warning above it, and the status line turns red. Download the ticker again during trading hours and the warning disappears.</li>
+    </ul>
 
     <h2 id="read">Read the chart</h2>
     <figure><img class="shot" src="img/chart-p.png" width="1384" height="984" loading="lazy" alt="The probability cone for AAPL with contour lines at 30% for the implied, 5-year and 10-year models."></figure>
@@ -161,8 +167,8 @@
     <p>The app needs the Microsoft Edge WebView2 Runtime. It is part of Windows 10 and 11, but can be missing on stripped-down installations. Install it from <a href="https://developer.microsoft.com/microsoft-edge/webview2/">Microsoft</a> and start the app again.</p>
     <h3>A download fails</h3>
     <p>Check the ticker symbol and your internet connection. Yahoo Finance occasionally limits requests; waiting a few minutes usually helps. The status line and <code>logs\optionscone.log</code> give the reason.</p>
-    <h3>The numbers look stale</h3>
-    <p>Outside US trading hours the chart shows the newest download taken during the session. The capture time next to the ticker tells you which one.</p>
+    <h3>The numbers look stale, or a red warning appears</h3>
+    <p>The chart always uses the newest download taken during US trading hours, and the capture time next to the ticker tells you which one. A red <em>Not reliable</em> warning means the ticker has no download from trading hours yet; see <a href="#hours">Download during US trading hours</a>.</p>
     <h3>A contour line is missing on one side</h3>
     <p>An expire probability cannot exceed about 50% on either side of spot, so a higher expire target cannot be drawn. The app says so next to the model buttons.</p>
     <h3>Something else</h3>
@@ -179,7 +185,7 @@
       <p>Not affiliated with Yahoo. Not financial advice.</p>
     </div>
     <div>
-      <p><a href="./">Home</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
+      <p><a href="./">Home</a> &middot; <a href="use-cases.html">Use cases</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
       <p><a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a></p>
     </div>
   </div>

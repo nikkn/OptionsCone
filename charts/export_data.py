@@ -24,7 +24,8 @@ from optionev import usable_ivs
 SYMBOLS = sys.argv[1:] or ["AAPL"]
 # The archive is the source, so tickers captured at different times can be
 # exported together.
-from archive import load as archive_load, index as archive_index  # noqa: E402
+from archive import (load as archive_load, index as archive_index,  # noqa: E402
+                     pick as archive_pick, state_of)
 
 # Use the newest pull taken while the market was open; pulls from outside
 # trading hours have no usable quotes.
@@ -397,20 +398,17 @@ for sym in SYMBOLS:
           f"({rows[0]/spot:.2f}-{rows[-1]/spot:.2f})  put floor from "
           f"P>={P_FLOOR:.0%}")
 
-# Provenance: which pull each symbol came from and how many are held.
+# Provenance: the pull the chart rests on, the newest pull held (which differs
+# when later pulls were taken outside trading hours), and how many are held.
 for _s in out:
     _idx = archive_index(_s)
-    if _idx:
-        out[_s]["archive"] = {"stamp": _idx[-1]["stamp"],
-                              "captured": _idx[-1]["captured"],
-                              "n_pulls": len(_idx)}
-
-for _s in out:
-    _idx = archive_index(_s)
-    if _idx:
-        out[_s]["archive"] = {"stamp": _idx[-1]["stamp"],
-                              "captured": _idx[-1]["captured"],
-                              "n_pulls": len(_idx)}
+    _used = archive_pick(_s, prefer_state="REGULAR")
+    if _idx and _used:
+        out[_s]["archive"] = {"stamp": _used["stamp"],
+                              "captured": _used["captured"],
+                              "n_pulls": len(_idx),
+                              "latest": _idx[-1]["captured"],
+                              "latest_state": state_of(_idx[-1])}
 
 # One file per ticker; the combined file for the all-in-one page is rebuilt
 # from all of them.

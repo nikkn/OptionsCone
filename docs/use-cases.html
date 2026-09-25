@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use cases: stop loss probability, break-even odds and price targets | OptionsCone</title>
+<meta name="description" content="How likely is a stop loss to be hit? What are the chances a losing stock position gets back to break-even, or that a price target is reached? Worked examples with the option market and ten years of history.">
+<link rel="canonical" href="https://nikkn.github.io/OptionsCone/use-cases.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What OptionsCone can tell you before and during a trade">
+<meta property="og:description" content="Stop loss probability, break-even odds, price targets, and the gap between the option market and the stock's own history. Worked examples.">
+<meta property="og:url" content="https://nikkn.github.io/OptionsCone/use-cases.html">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/chart-levels.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="" width="24" height="24">OptionsCone</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="use-cases.html" aria-current="page">Use cases</a>
+      <a href="manual.html">Manual</a>
+      <a href="methods.html">Methods</a>
+      <a href="https://github.com/nikkn/OptionsCone">GitHub</a>
+      <a class="btn small primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="doc">
+
+  <nav class="toc" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+      <li><a href="#scenarios"><strong>Build realistic scenarios</strong></a></li>
+      <li><a href="#target">Price target</a></li>
+      <li><a href="#breakeven">Back to break-even</a></li>
+      <li><a href="#range">Expected range</a></li>
+      <li><a href="#risk"><strong>Manage risk at entry</strong></a></li>
+      <li><a href="#stop">Stop loss level</a></li>
+      <li><a href="#touch-vs-close">Touched or stayed</a></li>
+      <li><a href="#events">Events in the holding period</a></li>
+      <li><a href="#opportunities"><strong>Identify opportunities</strong></a></li>
+      <li><a href="#market-vs-history">Market vs history</a></li>
+      <li><a href="#iv-driver">What drives the IV</a></li>
+      <li><a href="#liquidity">Where the liquidity is</a></li>
+    </ul>
+  </nav>
+
+  <article class="prose">
+    <h1>Use cases</h1>
+    <p class="lede">OptionsCone is not only for option traders. Anyone who holds a stock, or is about to buy one, can use the option market and the stock's own history to put numbers on the questions that come before and during a trade.</p>
+    <p>Every example below uses the same data: Apple (AAPL) on 22 September 2026, with the stock at 340.85. The numbers come straight from the app's tooltip and data table. Each question is answered three ways: by the option market (<strong>implied</strong>) and by the stock's own last five and ten years (<strong>5y</strong>, <strong>10y</strong>).</p>
+    <div class="note">This is information, not advice. The probabilities are estimates from market prices and from the past; they are not forecasts, and they say nothing about whether a trade is a good idea for you.</div>
+
+    <figure><img class="shot" src="img/chart-levels.png" width="1384" height="984" loading="lazy" alt="AAPL chart with horizontal lines at 380 (a break-even level) and 310 (a stop level) crossing the probability cone."><figcaption>AAPL with two levels drawn: 380 above spot and 310 below. Hover any dot on a line to read its probabilities.</figcaption></figure>
+
+    <h2 id="scenarios">1. Build realistic scenarios</h2>
+
+    <h3 id="target">Will the stock reach my price target?</h3>
+    <p><strong>Where to look:</strong> the listed strike nearest your target, at the expiry nearest your date. The <em>touch</em> figure answers "does it get there at some point"; <em>expire</em> answers "is it still there on that date".</p>
+    <p><strong>Example:</strong> a target of 400, 17% above spot, by 19 March (178 days).</p>
+    <div class="table-scroll"><table>
+      <tr><th>400 by 19 Mar</th><th>Implied</th><th>5y</th><th>10y</th></tr>
+      <tr><td>Touches 400</td><td>37.6%</td><td>52.7%</td><td>62.4%</td></tr>
+      <tr><td>Above 400 on 19 Mar</td><td>19.0%</td><td>33.3%</td><td>43.2%</td></tr>
+    </table></div>
+    <p><strong>Read it as:</strong> the option market puts the chance of seeing 400 within six months at a bit over one in three. Apple's own history says better than even, because the stock rose strongly over both windows, and the bootstrap keeps that trend. Whether the next six months resemble the last ten years is exactly the question the gap between the columns raises.</p>
+
+    <h3 id="breakeven">Will a losing position get back to break-even?</h3>
+    <p><strong>Where to look:</strong> your entry price as a level above spot.</p>
+    <p><strong>Example:</strong> bought at 380, now 10% under water.</p>
+    <div class="table-scroll"><table>
+      <tr><th>Back to 380</th><th>Implied</th><th>5y</th><th>10y</th></tr>
+      <tr><td>Within 87 days (18 Dec)</td><td>36.9%</td><td>50.3%</td><td>56.9%</td></tr>
+      <tr><td>Within 178 days (19 Mar)</td><td>55.2%</td><td>69.2%</td><td>75.9%</td></tr>
+      <tr><td>Above 380 on 19 Mar</td><td>27.9%</td><td>44.1%</td><td>53.0%</td></tr>
+    </table></div>
+    <p><strong>Read it as:</strong> by the market's pricing, a round trip to break-even within three months is less likely than not, and roughly even within six. Holding on "until it comes back" is a bet with odds, and the table shows them. Note the last row: even when the price does get back to 380, it often does not stay there.</p>
+
+    <h3 id="range">What range should I expect?</h3>
+    <p><strong>Where to look:</strong> the contour lines. Set the track probability to, say, 30%: each line then marks, expiry by expiry, how far up and down the price has a 30% chance of reaching. The space between the lines is the range the price is likely to explore.</p>
+    <p><strong>Example:</strong> within 87 days, the option market gives AAPL a 36.9% chance of touching 380 (+11.5%) and a 34.9% chance of touching 300 (&minus;12.0%). The market sees the two directions almost evenly. The 10-year history gives 56.9% up and 26.0% down, because it replays the uptrend of the past decade.</p>
+
+    <h2 id="risk">2. Manage risk at entry</h2>
+
+    <h3 id="stop">Where does a stop loss make sense?</h3>
+    <p><strong>Where to look:</strong> the stop level below spot, at the expiry that matches your holding period. The touch probability is the chance the stop is triggered, at least if the stop is executed at the level.</p>
+    <div class="table-scroll"><table>
+      <tr><th>Touched within 87 days</th><th>Implied</th><th>5y</th><th>10y</th></tr>
+      <tr><td>Stop at 310 (&minus;9.1%)</td><td>46.9%</td><td>42.0%</td><td>37.0%</td></tr>
+      <tr><td>Stop at 290 (&minus;14.9%)</td><td>25.7%</td><td>18.5%</td><td>17.7%</td></tr>
+    </table></div>
+    <p><strong>Read it as:</strong> a stop 9% below spot over three months is close to a coin flip, by every model. It is more likely to be hit by ordinary movement than by a real change in the story. A stop 15% below is hit about one time in four by the market's pricing. Neither is right or wrong; the numbers show what each choice costs in expected stop-outs.</p>
+
+    <h3 id="touch-vs-close">Touched or stayed?</h3>
+    <p>The same 310 level has a 46.9% implied chance of being touched by 18 December, but only 23.3% of the price still being below it on that day. From history the gap is even wider: 37.0% touch against 13.2% below at the end (10y). Half or more of the moves through the stop came back.</p>
+    <p>That difference is the price of a hard stop. It is also why OptionsCone shows touch by default: for a stop, a target or a short option strike, reaching the level is what matters, not where the price ends.</p>
+
+    <h3 id="events">Is there an event inside my holding period?</h3>
+    <p><strong>Where to look:</strong> the stars on the date axis are earnings dates, and the volatility badges above each expiry show how the market prices the time around them.</p>
+    <p><strong>Example:</strong> Apple reports on 29 October after the close. The expiry of 23 October has a model-free implied volatility of 23.3%; the next one, 30 October, the first to include the report, jumps to 26.7%. The market is pricing an earnings move. A position held across that date carries a risk that the ones closed before it do not.</p>
+
+    <h2 id="opportunities">3. Identify opportunities</h2>
+
+    <h3 id="market-vs-history">Where do the market and the history disagree?</h3>
+    <p><strong>Where to look:</strong> the three contour lines. Where they run together, the market prices roughly what the stock has done before. Where they separate, one of them is expecting something the other does not.</p>
+    <p><strong>Example:</strong> for AAPL the pattern is clear on both sides. Above spot the history lines lie far outside the implied one: the past decade's uptrend makes big up moves look likely. Below spot it is the other way round. A touch of 290 within six months has a 42.5% implied probability, against 29.7% (5y) and 26.8% (10y).</p>
+    <p><strong>Read it as:</strong> the option market charges for more downside than the last ten years produced. That gap is what buyers of downside protection pay and what sellers of it are paid for. It can be a premium for risk the history did not contain, or a sign the market knows something the past cannot. The tool shows the gap; it does not tell you which it is.</p>
+
+    <h3 id="iv-driver">Is volatility high because the stock is moving, or because of what is coming?</h3>
+    <p><strong>Where to look:</strong> the badges. The top number is the model-free implied volatility of each expiry; when there is room, a second number shows its ratio to realized volatility. Realized volatility itself is in the figures above the chart.</p>
+    <p><strong>Example:</strong> AAPL's realized volatility is 26.2%. The first four expiries sit at about 23.3% to 23.7%, a ratio of 0.89 to 0.91: the market expects the next weeks to be calmer than the recent ones. From the 30 October expiry onwards the ratio is back around 1.0, lifted by the earnings date.</p>
+    <p><strong>Read it as:</strong> a high ratio across all expiries means the market is charging for more movement than the stock is showing. A bump at one expiry points to an event. A ratio below one means recent moves were larger than the market expects to continue.</p>
+
+    <h3 id="liquidity">Where is the liquidity?</h3>
+    <p><strong>Where to look:</strong> switch the cone to <em>open int.</em> or <em>spread</em>. Dark patches in open interest show the strikes where large positions sit; on the spread map, darker means tighter quotes. For an option trade, the dark areas on the spread map are where the quoted price is a price you can actually get.</p>
+    <figure><img class="shot" src="img/chart-oi.png" width="1384" height="984" loading="lazy" alt="AAPL cone coloured by open interest."></figure>
+
+    <h2>Go further</h2>
+    <p>Every number on this page comes from one download and a few clicks. The <a href="manual.html">manual</a> explains each control, and the <a href="methods.html">methods</a> explain how each probability is calculated and where its limits are.</p>
+    <p><a class="btn primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download for Windows</a></p>
+  </article>
+
+</div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div>
+      <p>&copy; 2026 Nikolai Alexander &middot; <a href="https://github.com/nikkn/OptionsCone/blob/main/LICENSE">AGPL-3.0</a></p>
+      <p>Not affiliated with Yahoo. Not financial advice.</p>
+    </div>
+    <div>
+      <p><a href="./">Home</a> &middot; <a href="manual.html">Manual</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
+      <p><a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a></p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

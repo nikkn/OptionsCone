@@ -113,6 +113,12 @@ quality checks catch much of that, not all of it.
 All probabilities are estimates, derived from option prices or from past
 returns. They are not forecasts and not financial advice. Use at your own risk.
 
+## Contact
+
+Bug reports and suggestions: open an
+[issue](https://github.com/nikkn/OptionsCone/issues) or write to
+contact.aquart@gmail.com.
+
 ## License
 
 Copyright (C) 2026 Nikolai Alexander

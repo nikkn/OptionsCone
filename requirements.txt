@@ -11,3 +11,5 @@ pywebview==6.2.1
 # yfinance reads the earnings calendar with it; without it the dates are
 # silently empty.
 lxml==6.0.2
+# pywebview's Windows backend. Pinned because the build bundles it by name.
+pythonnet==3.1.0; sys_platform == "win32"

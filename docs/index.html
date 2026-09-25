@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OptionsCone: probability of touch for every listed option</title>
+<meta name="description" content="Free, open-source Windows app that shows the probability of a stock touching or finishing beyond every listed option strike before expiry, from option prices and from a bootstrap of the stock's own history.">
+<link rel="canonical" href="https://nikkn.github.io/OptionsCone/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="OptionsCone: probability of touch for every listed option">
+<meta property="og:description" content="See how likely a stock is to reach each strike before expiry. Implied and historical models side by side. Free and open source.">
+<meta property="og:url" content="https://nikkn.github.io/OptionsCone/">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/app.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "OptionsCone",
+  "description": "Desktop app that shows the probability of touching or finishing beyond every listed option strike before expiry, from option prices and from a block bootstrap of the stock's own history.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Windows 10, Windows 11",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+  "downloadUrl": "https://github.com/nikkn/OptionsCone/releases/latest",
+  "codeRepository": "https://github.com/nikkn/OptionsCone",
+  "screenshot": "https://nikkn.github.io/OptionsCone/img/app.png",
+  "author": { "@type": "Person", "name": "Nikolai Alexander" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is the probability of touch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The probability that the stock price reaches a given strike at any time before expiry, even if it moves away again afterwards. It is always at least as high as the probability of finishing beyond the strike, and often about twice as high." } },
+    { "@type": "Question", "name": "Is delta the probability of an option expiring in the money?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Delta is N(d1); the risk-neutral probability of finishing in the money is N(d2). The two differ by volatility times the square root of time, which is a wide gap on volatile stocks and long expiries." } },
+    { "@type": "Question", "name": "Is OptionsCone free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. OptionsCone is free and open source under the GNU Affero General Public License v3.0. It needs no account and no API key." } },
+    { "@type": "Question", "name": "Where does the data come from?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Option chains, prices and earnings dates come from Yahoo Finance through the yfinance library, fetched directly by your computer. Option quotes are delayed by about 15 minutes." } },
+    { "@type": "Question", "name": "Does OptionsCone run on Mac or Linux?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The ready-made download is for Windows 10 and 11. The source code is plain Python and can be run on other systems, but only Windows has been tested." } }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="" width="24" height="24">OptionsCone</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="manual.html">Manual</a>
+      <a href="methods.html">Methods</a>
+      <a href="https://github.com/nikkn/OptionsCone">GitHub</a>
+      <a class="btn small primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>How likely is the stock to reach that strike before expiry?</h1>
+    <p class="lede">OptionsCone shows the probability of touching every listed option strike, for every expiry, as a cone on the price chart. It compares what the option market implies with what the stock's own history says. Free and open source, for Windows.</p>
+    <div class="btn-row">
+      <a class="btn primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download for Windows</a>
+      <a class="btn" href="https://github.com/nikkn/OptionsCone">Source code</a>
+      <span class="btn-note">Windows 10 and 11 &middot; no installation &middot; no account</span>
+    </div>
+  </div>
+
+  <figure class="shot shot-hero">
+    <img src="img/app.png" width="1400" height="1318" alt="OptionsCone showing Apple (AAPL): ten years of daily candles, and to the right of today a blue probability cone over the listed strikes with implied, 5-year and 10-year contour lines at 30% touch probability.">
+  </figure>
+
+  <section>
+    <p class="eyebrow">What you see</p>
+    <h2>One chart for the whole option chain</h2>
+    <div class="grid3">
+      <div class="card">
+        <h3>The cone</h3>
+        <p>Every dot is a listed contract. The colour behind it is the probability that the price touches that strike before that expiry: dark near the money, fading to pale where a touch becomes unlikely. The cone widens with time because the price has longer to travel.</p>
+      </div>
+      <div class="card">
+        <h3>Three models</h3>
+        <p><span class="swatch" style="background:var(--track)"></span><strong>Implied</strong> from the option prices, with each contract's own volatility.<br>
+        <span class="swatch" style="background:var(--m5)"></span><strong>5y</strong> and <span class="swatch" style="background:var(--m10)"></span><strong>10y</strong> from a block bootstrap of the stock's daily history, intraday highs and lows included.</p>
+      </div>
+      <div class="card">
+        <h3>Contour lines</h3>
+        <p>Pick a probability, say 30%, and each model draws a line through the listed strikes that match it at every expiry, above and below spot. Where the lines separate, the market and the stock's past disagree.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="prose">
+      <p class="eyebrow">Why touch</p>
+      <h2>Delta is not a probability</h2>
+      <p>Many traders read a 0.30 delta as "a 30% chance of expiring in the money". Delta is N(d1); the risk-neutral chance of finishing in the money is N(d2). On a volatile stock the gap is wide: a put with a delta of 0.30 can carry a 43% chance of expiring in the money.</p>
+      <p>For a stop level, a price target or a short strike, the more useful question is often whether the price gets there at all. That is the <strong>probability of touch</strong>, roughly twice the probability of finishing beyond the strike. OptionsCone shows touch by default and expiry probability with one click, and shows delta and gamma next to them so the numbers can be checked against your broker.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Other views</p>
+    <h2>Colour the cone by what matters for the trade</h2>
+    <p class="prose">The same cone can show implied volatility, open interest or the bid-ask spread of every contract. Hover a contract for its quote, probabilities, delta and gamma.</p>
+    <div class="grid3">
+      <figure>
+        <a href="img/chart-iv.png"><img class="shot" src="img/cone-iv.png" width="544" height="760" loading="lazy" alt="Cone coloured by implied volatility, darker where volatility is higher."></a>
+        <figcaption><strong>Implied volatility.</strong> The skew and the term structure at a glance, with the model-free volatility of each expiry in the badges.</figcaption>
+      </figure>
+      <figure>
+        <a href="img/chart-oi.png"><img class="shot" src="img/cone-oi.png" width="544" height="760" loading="lazy" alt="Cone coloured by open interest, with dark patches at the strikes holding the largest positions."></a>
+        <figcaption><strong>Open interest.</strong> Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable.</figcaption>
+      </figure>
+      <figure>
+        <a href="img/chart-spr.png"><img class="shot" src="img/cone-spr.png" width="544" height="760" loading="lazy" alt="Cone coloured by bid-ask spread, darker where quotes are tighter."></a>
+        <figcaption><strong>Spread.</strong> Darker means tighter quotes, so the contracts you can actually trade stand out.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="grid2">
+      <div>
+        <p class="eyebrow">The numbers</p>
+        <h2>Every value in a table</h2>
+        <p>The data table lists whatever the cone shows, strike by expiry, for the contracts that are actually listed. Switch it to delta to compare a whole chain with your broker at once.</p>
+        <p>A data quality report shows how many quotes passed the checks, by moneyness, and the Methods section explains every calculation. Nothing is hidden behind a score.</p>
+      </div>
+      <figure>
+        <img class="shot" src="img/table.png" width="1384" height="823" loading="lazy" alt="Data table of touch probabilities for AAPL, strikes in rows and expiries in columns.">
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="grid2">
+      <div>
+        <p class="eyebrow">Under the hood</p>
+        <h2>Built to be checked</h2>
+        <p>Each contract's implied volatility is solved on an American binomial tree with discrete dividends. Impossible quotes are removed and doubtful ones are flagged. The bootstrap keeps fat tails and calm and turbulent stretches of the real history.</p>
+        <p>Every chain you download is archived on your computer, so a history of the option market builds up for every ticker you follow. The code is open for anyone to read. <a href="methods.html">Read the methods</a>.</p>
+      </div>
+      <div>
+        <p class="eyebrow">Get started</p>
+        <h2>Three steps</h2>
+        <ol class="steps">
+          <li><strong>Download</strong> <code>OptionsCone.exe</code> from the <a href="https://github.com/nikkn/OptionsCone/releases/latest">releases page</a> and run it. If Windows warns about an unknown app, click <em>More info</em>, then <em>Run anyway</em>.</li>
+          <li><strong>Type a ticker</strong>, for example <code>AAPL</code>, and press <em>download</em>. The first download takes a minute or two.</li>
+          <li><strong>Read the cone.</strong> Set the probability you care about and compare the three lines. The <a href="manual.html">manual</a> explains every control.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="prose">
+      <p class="eyebrow">Questions</p>
+      <h2>Frequently asked</h2>
+      <details class="faq"><summary>What is the probability of touch?</summary>
+        <p>The probability that the stock price reaches a given strike at any time before expiry, even if it moves away again afterwards. It is always at least as high as the probability of finishing beyond the strike, and often about twice as high.</p></details>
+      <details class="faq"><summary>What is the difference between the implied and the bootstrap models?</summary>
+        <p>The implied model uses option prices, so it reflects what the market charges for the risk today. The bootstrap models replay the stock's own last five or ten years in random blocks of twenty trading days. They describe what happened, not what the market expects. Where they differ, the option market is pricing a move the history did not produce, or the other way round.</p></details>
+      <details class="faq"><summary>Is OptionsCone free?</summary>
+        <p>Yes. It is free and open source under the GNU Affero General Public License v3.0. There is no account, no subscription and no API key.</p></details>
+      <details class="faq"><summary>Where does the data come from, and is it real time?</summary>
+        <p>Option chains, prices and earnings dates come from Yahoo Finance through the yfinance library, fetched directly by your computer. Option quotes are delayed by about 15 minutes. Outside US trading hours the app uses the newest download taken during the session.</p></details>
+      <details class="faq"><summary>Does the app send my data anywhere?</summary>
+        <p>No. It contacts Yahoo Finance for market data and Google Fonts for its typeface. There is no telemetry and no account. Everything you download stays in a folder on your computer.</p></details>
+      <details class="faq"><summary>Why does Windows show a warning when I start it?</summary>
+        <p>The executable is not code-signed, which costs money every year. SmartScreen warns about any unsigned program it has not seen often. Click <em>More info</em>, then <em>Run anyway</em>. The source code and the build script are public, and each release lists a SHA-256 checksum of the file.</p></details>
+      <details class="faq"><summary>Does it run on Mac or Linux?</summary>
+        <p>The ready-made download is for Windows 10 and 11. The source is plain Python and can be run elsewhere with the steps in the <a href="https://github.com/nikkn/OptionsCone#run-from-source">README</a>, but only Windows has been tested.</p></details>
+      <details class="faq"><summary>Which tickers work?</summary>
+        <p>Any US stock or ETF with listed options on Yahoo Finance. ETFs have no earnings dates, so no earnings markers appear for them.</p></details>
+      <details class="faq"><summary>Is this financial advice?</summary>
+        <p>No. All probabilities are estimates from market prices or from the past. They are not forecasts, and the data can be delayed, incomplete or wrong.</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div>
+      <p>&copy; 2026 Nikolai Alexander &middot; <a href="https://github.com/nikkn/OptionsCone/blob/main/LICENSE">AGPL-3.0</a></p>
+      <p>Not affiliated with Yahoo. Not financial advice.</p>
+    </div>
+    <div>
+      <p><a href="manual.html">Manual</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
+      <p><a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a></p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

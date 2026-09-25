@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual: installing and using OptionsCone</title>
+<meta name="description" content="How to install OptionsCone on Windows, download option chains, read the probability cone, contours, badges and tooltip, and use every control and keyboard shortcut.">
+<link rel="canonical" href="https://nikkn.github.io/OptionsCone/manual.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OptionsCone manual">
+<meta property="og:description" content="Installing OptionsCone, reading the probability cone and using every control.">
+<meta property="og:url" content="https://nikkn.github.io/OptionsCone/manual.html">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/app.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="" width="24" height="24">OptionsCone</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="manual.html" aria-current="page">Manual</a>
+      <a href="methods.html">Methods</a>
+      <a href="https://github.com/nikkn/OptionsCone">GitHub</a>
+      <a class="btn small primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="doc">
+
+  <nav class="toc" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#download">Download a ticker</a></li>
+      <li><a href="#read">Read the chart</a></li>
+      <li><a href="#controls">Controls</a></li>
+      <li><a href="#mouse">Mouse and keyboard</a></li>
+      <li><a href="#tooltip">Tooltip</a></li>
+      <li><a href="#table">Data table</a></li>
+      <li><a href="#quality">Data quality</a></li>
+      <li><a href="#data">Your data</a></li>
+      <li><a href="#update">Updating</a></li>
+      <li><a href="#trouble">Troubleshooting</a></li>
+    </ul>
+  </nav>
+
+  <article class="prose">
+    <h1>Manual</h1>
+    <p class="lede">Everything the app shows and every control, in the order you meet them.</p>
+
+    <h2 id="install">Install</h2>
+    <p>OptionsCone is a single file and needs no installation.</p>
+    <ol>
+      <li>Download <code>OptionsCone.exe</code> from the <a href="https://github.com/nikkn/OptionsCone/releases/latest">latest release</a>.</li>
+      <li>Move it wherever you like, for example to your desktop, and double-click it.</li>
+      <li>The file is not code-signed, so Windows SmartScreen may say it protected your PC. Click <em>More info</em>, then <em>Run anyway</em>. Windows remembers the choice.</li>
+    </ol>
+    <p>The first start takes a few seconds longer while the program unpacks itself. It runs on Windows 10 and 11 and uses the Edge WebView2 component that both include.</p>
+    <p>Each release lists a SHA-256 checksum. To check your download, open PowerShell in the download folder and run <code>Get-FileHash OptionsCone.exe</code>; the result should match.</p>
+
+    <h2 id="download">Download a ticker</h2>
+    <p>The bar at the top of the window is where data comes in.</p>
+    <div class="table-scroll"><table>
+      <tr><th>Control</th><th>What it does</th></tr>
+      <tr><td>Ticker box</td><td>Type one or more US tickers, separated by spaces or commas, for example <code>AAPL MSFT</code>.</td></tr>
+      <tr><td><em>download</em></td><td>Fetches the option chain, prices every contract and runs both bootstraps. <kbd>Enter</kbd> in the ticker box does the same.</td></tr>
+      <tr><td><em>refresh all</em></td><td>Downloads a fresh chain for every ticker you already hold.</td></tr>
+      <tr><td><em>weeklies</em></td><td>Includes weekly expiries as well as the standard monthly ones. More columns, longer download.</td></tr>
+      <tr><td><em>open in browser</em></td><td>Opens the same chart in your web browser.</td></tr>
+      <tr><td><em>data folder</em></td><td>Opens the folder where the archive and the chart are stored.</td></tr>
+    </table></div>
+    <p>A progress bar and a status line show what is happening. The first download of a ticker takes a minute or two; later ones are similar, because every download is a complete new chain. When it finishes, the chart reloads on that ticker.</p>
+    <div class="note">Option quotes are only meaningful while the US market is open: 9:30 to 16:00 New York time, usually 15:30 to 22:00 in Central Europe. Downloads outside those hours are archived, but the chart keeps using the newest download taken during the session.</div>
+
+    <h2 id="read">Read the chart</h2>
+    <figure><img class="shot" src="img/chart-p.png" width="1384" height="984" loading="lazy" alt="The probability cone for AAPL with contour lines at 30% for the implied, 5-year and 10-year models."></figure>
+    <h3>Candles and spot</h3>
+    <p>Up to ten years of daily or weekly candles. The dashed gold line is the current price (spot), labelled on the price axis. Stars on the date axis mark earnings: filled where the date is confirmed, hollow where it is projected from the reporting cycle, smaller for past reports.</p>
+    <h3>The cone</h3>
+    <p>To the right of today, each column of dots is one expiry, labelled with its days to expiry at the bottom. Each dot is a listed contract: calls above spot, puts below, so every contract shown is out of the money. A hollow dot means that contract's own quote failed the price checks and it uses the volatility of the nearest strike that passed.</p>
+    <p>The colour is the implied probability of touching that strike before that expiry, from pale (unlikely) to dark (likely). The legend under the chart gives the scale.</p>
+    <h3>Contour lines</h3>
+    <p>For every expiry, each model marks the listed strike whose probability is closest to your target, once above and once below spot, and joins the marks into a line. A filled marker is within 5 percentage points of the target; a hollow one is the nearest strike available but further off. Where no listed strike comes within 25 points, that expiry has no marker.</p>
+    <p>The <span class="swatch" style="background:var(--track)"></span>implied line comes from option prices, the <span class="swatch" style="background:var(--m5)"></span>5y and <span class="swatch" style="background:var(--m10)"></span>10y lines from the stock's own history. When all three are shown, the implied line is drawn on top.</p>
+    <h3>Expiry badges</h3>
+    <p>The badge above each expiry is its model-free implied volatility, calculated like the VIX but for that expiry alone. When there is room, a second number shows the ratio of that volatility to realized volatility, for example <code>x1.15</code>. It turns orange from 1.30: the market is charging a lot more than the stock has recently moved, often ahead of earnings.</p>
+    <h3>The figures above the chart</h3>
+    <p>Spot price, the date of the data, the number of contracts, realized volatility (one year, exponentially weighted with a six-week half-life) and how many contracts passed the quality checks.</p>
+
+    <h2 id="controls">Controls</h2>
+    <div class="table-scroll"><table>
+      <tr><th>Control</th><th>What it does</th></tr>
+      <tr><td>Ticker</td><td>Switches between the tickers you hold. The line next to it shows when the data was captured and how many downloads are archived.</td></tr>
+      <tr><td>Bars: <em>daily</em>, <em>weekly</em></td><td>Candle interval.</td></tr>
+      <tr><td>Zoom: <em>reset</em></td><td>Returns to the opening view. The label shows <code>fit</code> there, otherwise the zoom factor.</td></tr>
+      <tr><td>Track probability: <em>down</em>, <em>up</em></td><td>The target probability for the contour lines below and above spot, in steps of 5%.</td></tr>
+      <tr><td><em>linked</em></td><td>Moves both sides together.</td></tr>
+      <tr><td>Contour: <em>touch</em>, <em>expire</em></td><td>Whether the lines track the probability of touching the strike before expiry, or of finishing beyond it at expiry.</td></tr>
+      <tr><td>Models: <em>implied</em>, <em>5y</em>, <em>10y</em></td><td>Show or hide each model's line.</td></tr>
+      <tr><td>Cone: <em>probability</em>, <em>IV</em>, <em>open int.</em>, <em>spread</em></td><td>What the cone is coloured by. Probability uses a fixed 0 to 100% scale; the others are stretched across the values on screen, with the ends shown in the legend. For spread, darker means tighter.</td></tr>
+      <tr><td><em>dots</em></td><td>Hides the contract dots to read the colour on its own. The tooltip keeps working.</td></tr>
+      <tr><td><em>fullscreen</em></td><td>Fills the window with the chart and takes the controls along.</td></tr>
+      <tr><td>Draw: <em>off</em>, <em>trend</em>, <em>horizontal</em>, <em>clear</em></td><td>Drawing tools. Trend lines are dragged from one point to another; a horizontal line is placed with one click. Drawings stay pinned to price and date when you zoom or scroll.</td></tr>
+      <tr><td>EMA <em>1</em>, <em>2</em></td><td>Two exponential moving averages of the close. The number next to each is the period in trading days; on weekly bars it is converted to weeks. The settings are remembered.</td></tr>
+    </table></div>
+
+    <h2 id="mouse">Mouse and keyboard</h2>
+    <div class="table-scroll"><table>
+      <tr><th>Input</th><th>Action</th></tr>
+      <tr><td>Drag left or right</td><td>Scroll through time</td></tr>
+      <tr><td>Drag up or down</td><td>Slide the price range, to bring a part of the cone into view</td></tr>
+      <tr><td><kbd>Ctrl</kbd> or <kbd>Shift</kbd> + wheel</td><td>Zoom in and out around the pointer</td></tr>
+      <tr><td>Wheel over a probability box</td><td>Change that target probability</td></tr>
+      <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Change the downside target (and the upside too while linked)</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Enter or leave fullscreen (<kbd>Esc</kbd> also leaves)</td></tr>
+      <tr><td><kbd>T</kbd> <kbd>H</kbd> <kbd>V</kbd></td><td>Trend line, horizontal line, drawing off</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> or <kbd>Backspace</kbd></td><td>Remove the last drawing</td></tr>
+    </table></div>
+
+    <h2 id="tooltip">Tooltip</h2>
+    <p>Hover a dot to see that contract: strike, distance from spot, expiry, days to expiry, delta and gamma. Below that come the numbers for the current cone colouring:</p>
+    <ul>
+      <li><strong>probability:</strong> the contract's implied volatility, and touch and expire for all three models side by side, plus the mid price</li>
+      <li><strong>IV:</strong> implied volatility, and whether it is a call or a put</li>
+      <li><strong>open int.:</strong> open interest and today's volume</li>
+      <li><strong>spread:</strong> bid, ask, mid, and the spread in dollars and as a share of the mid</li>
+    </ul>
+    <p>A warning line appears if the quote was flagged by the checks.</p>
+    <p>Delta and gamma are computed on the same American binomial tree as the implied volatility, so they can be compared with your broker's. Small differences come from the broker's own dividend and rate assumptions.</p>
+
+    <h2 id="table">Data table</h2>
+    <figure><img class="shot" src="img/table.png" width="1384" height="823" loading="lazy" alt="The data table with strikes in rows and expiries in columns."></figure>
+    <p>Open <em>Data table</em> below the chart. Strikes are rows and expiries are columns. <em>cone colouring</em> shows the same values the cone is coloured by (in probability mode, the implied touch probability); <em>delta</em> shows each contract's delta, calls above spot and puts below. A dot means the expiry does not list that strike. The shaded rows are the strikes within 2% of spot.</p>
+
+    <h2 id="quality">Data quality and Methods</h2>
+    <p><em>Data quality</em> shows how many quotes passed the checks, broken down by moneyness, with the median spread and open interest in each band. The rate that matters is the one for out-of-the-money contracts, because those are the ones the probabilities come from.</p>
+    <p><em>Methods</em> explains every calculation in the app. The same material, in more detail, is on the <a href="methods.html">methods page</a>.</p>
+
+    <h2 id="data">Your data</h2>
+    <p>Everything is stored in <code>%LOCALAPPDATA%\OptionsCone</code>, which <em>data folder</em> opens:</p>
+    <div class="table-scroll"><table>
+      <tr><th>Folder</th><th>Contents</th></tr>
+      <tr><td><code>archive</code></td><td>Every option chain you have downloaded, with its time and market state. Option quotes cannot be downloaded again later, so this is the part worth backing up.</td></tr>
+      <tr><td><code>data</code>, <code>charts</code></td><td>The prepared chart data and the chart page. Rebuilt from the archive when needed.</td></tr>
+      <tr><td><code>logs</code></td><td><code>optionscone.log</code>, useful when reporting a problem.</td></tr>
+    </table></div>
+    <p>To uninstall, delete <code>OptionsCone.exe</code> and this folder.</p>
+
+    <h2 id="update">Updating</h2>
+    <p>Download the new <code>OptionsCone.exe</code> and replace the old one. Your archive stays where it is. If the new version stores chart data differently, it rebuilds your tickers from the archive on its first start, without downloading anything.</p>
+
+    <h2 id="trouble">Troubleshooting</h2>
+    <h3>The window stays empty</h3>
+    <p>The app needs the Microsoft Edge WebView2 Runtime. It is part of Windows 10 and 11, but can be missing on stripped-down installations. Install it from <a href="https://developer.microsoft.com/microsoft-edge/webview2/">Microsoft</a> and start the app again.</p>
+    <h3>A download fails</h3>
+    <p>Check the ticker symbol and your internet connection. Yahoo Finance occasionally limits requests; waiting a few minutes usually helps. The status line and <code>logs\optionscone.log</code> give the reason.</p>
+    <h3>The numbers look stale</h3>
+    <p>Outside US trading hours the chart shows the newest download taken during the session. The capture time next to the ticker tells you which one.</p>
+    <h3>A contour line is missing on one side</h3>
+    <p>An expire probability cannot exceed about 50% on either side of spot, so a higher expire target cannot be drawn. The app says so next to the model buttons.</p>
+    <h3>Something else</h3>
+    <p><a href="https://github.com/nikkn/OptionsCone/issues">Open an issue</a> with the ticker, what you expected, and the end of the log file, or write to <a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a>.</p>
+  </article>
+
+</div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div>
+      <p>&copy; 2026 Nikolai Alexander &middot; <a href="https://github.com/nikkn/OptionsCone/blob/main/LICENSE">AGPL-3.0</a></p>
+      <p>Not affiliated with Yahoo. Not financial advice.</p>
+    </div>
+    <div>
+      <p><a href="./">Home</a> &middot; <a href="methods.html">Methods</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
+      <p><a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a></p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

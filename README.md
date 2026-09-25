@@ -4,6 +4,8 @@ How likely is a stock to touch a given price before a given date? OptionsCone
 answers that for every listed option contract of a ticker, and draws the
 answer as a cone on the price chart.
 
+**Website, manual and methods: https://nikkn.github.io/OptionsCone/**
+
 ![OptionsCone showing AAPL](docs/screenshot.png)
 
 Each dot is a listed contract. The colour behind it is the probability that

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methods: how OptionsCone calculates touch and expiry probabilities</title>
+<meta name="description" content="How OptionsCone computes the probability of touch and of expiring beyond each strike: American binomial implied volatility, the first-passage formula, N(d2) versus delta, a block bootstrap with intraday highs and lows, and model-free implied volatility.">
+<link rel="canonical" href="https://nikkn.github.io/OptionsCone/methods.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How OptionsCone calculates touch and expiry probabilities">
+<meta property="og:description" content="Implied volatility on an American tree, the first-passage formula, delta versus N(d2), and a block bootstrap with intraday highs and lows.">
+<meta property="og:url" content="https://nikkn.github.io/OptionsCone/methods.html">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/chart-p.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="" width="24" height="24">OptionsCone</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="manual.html">Manual</a>
+      <a href="methods.html" aria-current="page">Methods</a>
+      <a href="https://github.com/nikkn/OptionsCone">GitHub</a>
+      <a class="btn small primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="doc">
+
+  <nav class="toc" aria-label="On this page">
+    <p>On this page</p>
+    <ul>
+      <li><a href="#data">Data</a></li>
+      <li><a href="#filters">Which contracts are used</a></li>
+      <li><a href="#iv">Implied volatility and Greeks</a></li>
+      <li><a href="#touch">Probability of touch</a></li>
+      <li><a href="#expire">Probability at expiry</a></li>
+      <li><a href="#delta">Delta is not a probability</a></li>
+      <li><a href="#bootstrap">Bootstrap models</a></li>
+      <li><a href="#mfiv">Model-free volatility</a></li>
+      <li><a href="#rv">Realized volatility</a></li>
+      <li><a href="#cone">Drawing the cone</a></li>
+      <li><a href="#limits">Limits</a></li>
+    </ul>
+  </nav>
+
+  <article class="prose">
+    <h1>Methods</h1>
+    <p class="lede">What OptionsCone calculates, and how. The full source code is on <a href="https://github.com/nikkn/OptionsCone">GitHub</a>; the file names below point to where each step lives.</p>
+
+    <h2 id="data">Data</h2>
+    <p>Option chains, stock prices and earnings dates come from Yahoo Finance through the <a href="https://github.com/ranaroussi/yfinance">yfinance</a> library. Option quotes are delayed by about 15 minutes. Every download is archived together with Yahoo's market state; the chart uses the newest download taken during the regular US session, because quotes outside it are mostly placeholders.</p>
+    <p>The risk-free rate is the 13-week US Treasury bill yield (<code>^IRX</code>). Future dividends are projected from the payout history: the last payment is carried forward at the observed frequency.</p>
+
+    <h2 id="filters">Which contracts are used</h2>
+    <p>Contracts with fewer than 10 days to expiry are dropped: their price is mostly intrinsic value and tick size, and the implied volatility says little. So are contracts with an absolute delta below 0.05, whose few-cent quotes are noise.</p>
+    <p><strong>Hard checks</strong> remove quotes that are impossible: no bid or no ask, an ask below the bid, a mid below one cent, a price below intrinsic value or above its theoretical maximum, and an implied volatility outside 1% to 300%.</p>
+    <p><strong>Soft checks</strong> flag quotes that are doubtful without removing them: a spread wider than 25% of the mid, a bid of one cent, a put-call parity error larger than the half spread, a forward inconsistent with the rest of the expiry, and thin open interest. A contract that fails the price checks keeps its place on the chart but borrows the implied volatility of the nearest strike that passes; its dot is drawn hollow. Open interest alone never disqualifies a price.</p>
+    <p>Calls are used above spot and puts below, so every contract on the chart is out of the money. Those are the liquid quotes, and they carry little early-exercise premium. (<code>src/quality.py</code>, <code>src/chain.py</code>)</p>
+
+    <h2 id="iv">Implied volatility and Greeks</h2>
+    <p>Listed US equity options are American. Each contract's volatility is solved from its bid-ask mid on a Cox-Ross-Rubinstein binomial tree with 160 steps, using Brent's root-finding method. Discrete dividends enter by the escrowed-dividend method: the present value of the dividends before expiry is taken out of the spot price, and the tree runs on the remainder.</p>
+    <p>Delta and gamma are central differences on the same tree, moving spot 1% up and down. They are shown for comparison with a broker; brokers use their own dividend and rate assumptions, so small differences are normal. (<code>src/american.py</code>)</p>
+
+    <h2 id="touch">Probability of touch</h2>
+    <p>The probability that the price reaches strike <var>K</var> at any time before expiry <var>T</var>, for a lognormal price with the contract's own implied volatility <var>&sigma;</var> and the risk-neutral log drift</p>
+    <p class="formula">&mu; = r &minus; &sigma;&sup2;/2</p>
+    <p>For a strike below spot <var>S</var>, with <var>x</var> = ln(<var>K</var>/<var>S</var>):</p>
+    <p class="formula">P(touch) = N( (x &minus; &mu;T) / &sigma;&radic;T ) + (K/S)<sup>2&mu;/&sigma;&sup2;</sup> &middot; N( (x + &mu;T) / &sigma;&radic;T )</p>
+    <p>and the mirror image for a strike above spot:</p>
+    <p class="formula">P(touch) = N( (&minus;x + &mu;T) / &sigma;&radic;T ) + (K/S)<sup>2&mu;/&sigma;&sup2;</sup> &middot; N( (&minus;x &minus; &mu;T) / &sigma;&radic;T )</p>
+    <p>This is the standard first-passage (reflection principle) result. With no drift, the touch probability is exactly twice the probability of finishing beyond the strike; with drift it is close to that. A touch counts even if the price moves back afterwards, so it is never lower than the expiry probability. (<code>src/barrier.py</code>)</p>
+
+    <h2 id="expire">Probability at expiry</h2>
+    <p>The risk-neutral probability of finishing beyond the strike, with the same volatility and drift:</p>
+    <p class="formula">d<sub>2</sub> = ( ln(S/K) + (r &minus; &sigma;&sup2;/2) T ) / &sigma;&radic;T</p>
+    <p class="formula">P(above K at expiry) = N(d<sub>2</sub>) &nbsp;&nbsp;&nbsp; P(below K at expiry) = N(&minus;d<sub>2</sub>)</p>
+    <p>Both implied probabilities use the same assumptions, so touch and expiry are directly comparable.</p>
+
+    <h2 id="delta">Delta is not a probability</h2>
+    <p>A call's delta is N(d<sub>1</sub>), and d<sub>1</sub> = d<sub>2</sub> + &sigma;&radic;T. The gap between delta and the probability of expiring in the money therefore grows with volatility and time. On a stock with 80% volatility and three months to go, &sigma;&radic;T is 0.4, and a 0.30 delta put can have a 40% or higher chance of expiring in the money. Delta remains the right number for hedging; for odds, use N(d<sub>2</sub>), or better the touch probability if the question is whether a level will be reached.</p>
+
+    <h2 id="bootstrap">Bootstrap models (5y, 10y)</h2>
+    <p>The implied probabilities describe what the market charges for risk. The bootstrap models show a different view, from the stock's own history:</p>
+    <ul>
+      <li><strong>Blocks.</strong> Paths are built from the daily returns of the last 5 or 10 years. Blocks of 20 consecutive trading days are drawn at random, with replacement, and joined until the longest expiry is covered. Drawing single days would destroy volatility clustering; month-long blocks keep calm and turbulent stretches intact, and fat tails and skew carry over.</li>
+      <li><strong>Intraday range.</strong> Each simulated day carries the high and low of the real day it came from, relative to that day's close. A touch is counted when a simulated low (for strikes below spot) or high (above) reaches the strike, so the intraday range is observed, not inferred from closing prices.</li>
+      <li><strong>Drift kept.</strong> The realised trend of the window stays in the returns.</li>
+      <li><strong>10,000 paths</strong> per window. Near a probability of 27%, the counting noise is about 0.4 percentage points, far below the difference between the two windows.</li>
+      <li><strong>One run</strong> per window to the longest expiry, read off at every shorter one, so probabilities can never fall with maturity.</li>
+    </ul>
+    <p>Touch is the share of paths whose low (high) reaches the strike by expiry; expire is the share whose final close is beyond it. These are historical frequencies. They contain only moves that happened in the sample, and they ignore everything the market knows today, such as an upcoming earnings date. (<code>src/montecarlo.py</code>, <code>charts/export_data.py</code>)</p>
+    <div class="note">Where the implied and bootstrap lines diverge, the option market is pricing a move the history did not produce, or the other way round. The difference is the risk premium plus whatever is new; neither model is assumed to be right.</div>
+
+    <h2 id="mfiv">Model-free implied volatility</h2>
+    <p>The badge above each expiry is computed with the Cboe VIX method, applied to that expiry alone and left at its own maturity:</p>
+    <p class="formula">&sigma;&sup2; = (2/T) &Sigma; (&Delta;K<sub>i</sub>/K<sub>i</sub>&sup2;) e<sup>rT</sup> Q(K<sub>i</sub>) &minus; (1/T) (F/K<sub>0</sub> &minus; 1)&sup2;</p>
+    <p>Only out-of-the-money quotes contribute, each wing stops after two consecutive zero bids, the forward <var>F</var> comes from put-call parity at the strike where call and put prices are closest, and <var>K<sub>0</sub></var> is the first strike at or below <var>F</var>. No pricing model is inverted, so the result can differ from an at-the-money implied volatility. The ratio below the badge divides it by realized volatility. (<code>src/varswap.py</code>)</p>
+
+    <h2 id="rv">Realized volatility</h2>
+    <p>Close-to-close volatility over the last year, exponentially weighted with a six-week half-life and annualised with 252 trading days. Close-to-close includes overnight gaps, which is the movement an option pays out on. Returns are weighted around zero rather than around their mean. (<code>src/realized.py</code>)</p>
+
+    <h2 id="cone">Drawing the cone</h2>
+    <p>Probability colouring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike so the field stays continuous; no dot is drawn there. The colour ramp is adjusted so that perceived lightness falls evenly with probability.</p>
+    <p>Implied volatility, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. Probability uses a fixed 0 to 100% scale, implied volatility a linear scale over the values shown, and open interest and spread a logarithmic scale, with spread inverted so that darker means tighter.</p>
+    <p>For each expiry and model, the contour marks the listed strike whose probability is closest to the target, separately above and below spot. A filled marker is within 5 percentage points of the target.</p>
+
+    <h2 id="limits">Limits</h2>
+    <ul>
+      <li>The implied model assumes a lognormal price with constant volatility per contract. Real prices jump, especially around earnings.</li>
+      <li>Implied probabilities are risk-neutral. They include the market's price for risk and are not real-world odds.</li>
+      <li>The bootstrap only knows the chosen years. A stock that changed its business, or a period without a crash, gives a narrow picture.</li>
+      <li>Free data can be delayed, incomplete or wrong. The checks catch much of that, not all of it.</li>
+    </ul>
+    <p>All probabilities are estimates. They are not forecasts and not financial advice.</p>
+  </article>
+
+</div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div>
+      <p>&copy; 2026 Nikolai Alexander &middot; <a href="https://github.com/nikkn/OptionsCone/blob/main/LICENSE">AGPL-3.0</a></p>
+      <p>Not affiliated with Yahoo. Not financial advice.</p>
+    </div>
+    <div>
+      <p><a href="./">Home</a> &middot; <a href="manual.html">Manual</a> &middot; <a href="https://github.com/nikkn/OptionsCone/issues">Report a problem</a></p>
+      <p><a href="mailto:contact.aquart@gmail.com">contact.aquart@gmail.com</a></p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

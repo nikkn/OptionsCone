@@ -100,6 +100,7 @@ def build(onedir=False):
 
     args = [str(ROOT / "app.py"), "--name", "OptionsCone", "--noconfirm", "--clean",
             "--windowed", "--onedir" if onedir else "--onefile",
+            "--icon", str(ROOT / "assets" / "optionscone.ico"),
             "--distpath", str(ROOT / "dist"),
             "--workpath", str(ROOT / "build"),
             "--specpath", str(ROOT / "build"),

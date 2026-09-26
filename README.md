@@ -1,4 +1,9 @@
-# OptionsCone
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/optionscone-logo-dark.svg">
+    <img alt="OptionsCone" src="docs/brand/optionscone-logo-light.svg" height="60">
+  </picture>
+</h1>
 
 How likely is a stock to touch a given price before a given date? OptionsCone
 answers that for every listed option contract of a ticker, and draws the

@@ -74,7 +74,7 @@
 
     <h2 id="iv">Implied volatility and Greeks</h2>
     <p>Listed US equity options are American. Each contract's volatility is solved from its bid-ask mid on a Cox-Ross-Rubinstein binomial tree with 160 steps, using Brent's root-finding method. Discrete dividends enter by the escrowed-dividend method: the present value of the dividends before expiry is taken out of the spot price, and the tree runs on the remainder.</p>
-    <p>Delta and gamma are central differences on the same tree, moving spot 1% up and down. They are shown for comparison with a broker; brokers use their own dividend and rate assumptions, so small differences are normal. (<code>src/american.py</code>)</p>
+    <p>Delta and gamma are read from the nodes of the same tree: delta is the slope between the two nodes after the first step, gamma the change in that slope across the three nodes after the second. They are shown for comparison with a broker; brokers use their own dividend and rate assumptions, so small differences are normal. (<code>src/american.py</code>)</p>
 
     <h2 id="touch">Probability of touch</h2>
     <p>The probability that the price reaches strike <var>K</var> at any time before expiry <var>T</var>, for a lognormal price with the contract's own implied volatility <var>&sigma;</var> and the risk-neutral log drift</p>

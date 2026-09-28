@@ -28,15 +28,21 @@ def crr_price(S, K, T, r, sigma, is_call=False, divs=None, steps=200):
 
     divs: [(t_years, amount), ...], ex-times measured from now.
     """
+    return _crr(S, K, T, r, sigma, is_call, divs, steps)["price"]
+
+
+def _crr(S, K, T, r, sigma, is_call, divs, steps):
+    """Price, and the node values after the first two steps for the Greeks."""
+    intrinsic = max((S - K) if is_call else (K - S), 0.0)
     if T <= 0 or sigma <= 0 or S <= 0:
-        intrinsic = (S - K) if is_call else (K - S)
-        return max(intrinsic, 0.0)
+        return {"price": intrinsic, "nodes": None}
 
     divs = divs or []
     # Risky part of the spot: remove the PV of dividends paid before expiry.
     S_risky = S - _pv_dividends(divs, T, r)
     if S_risky <= 0:
-        return max((S - K) if is_call else (K - S), 0.0)
+        return {"price": intrinsic, "nodes": None}
+    steps = max(int(steps), 2)
 
     dt = T / steps
     u = np.exp(sigma * np.sqrt(dt))
@@ -57,6 +63,7 @@ def crr_price(S, K, T, r, sigma, is_call=False, divs=None, steps=200):
     ST = ladder[steps + np.arange(steps, -steps - 1, -2)]
     values = np.maximum(ST - K, 0.0) if is_call else np.maximum(K - ST, 0.0)
 
+    nodes = {}
     for i in range(steps - 1, -1, -1):
         values = disc * (p * values[:-1] + (1 - p) * values[1:])
         S_i = ladder[steps + np.arange(i, -i - 1, -2)]
@@ -64,8 +71,10 @@ def crr_price(S, K, T, r, sigma, is_call=False, divs=None, steps=200):
             S_i = S_i + pv_at[i]
         exercise = (S_i - K) if is_call else (K - S_i)
         np.maximum(values, exercise, out=values)
+        if i <= 2:
+            nodes[i] = (S_i.copy(), values.copy())
 
-    return float(values[0])
+    return {"price": float(values[0]), "nodes": nodes}
 
 
 def implied_vol(price, S, K, T, r, is_call=False, divs=None, steps=200,
@@ -106,17 +115,26 @@ def implied_vol(price, S, K, T, r, is_call=False, divs=None, steps=200,
     return float(0.5 * (lo + hi))
 
 
-def greeks(S, K, T, r, sigma, is_call=False, divs=None, steps=200, h_rel=0.01):
-    """Delta and gamma by central difference on the spot."""
-    h = max(S * h_rel, 1e-4)
-    up = crr_price(S + h, K, T, r, sigma, is_call, divs, steps)
-    mid = crr_price(S, K, T, r, sigma, is_call, divs, steps)
-    dn = crr_price(S - h, K, T, r, sigma, is_call, divs, steps)
-    return {
-        "delta": (up - dn) / (2 * h),
-        "gamma": (up - 2 * mid + dn) / (h * h),
-        "price": mid,
-    }
+def greeks(S, K, T, r, sigma, is_call=False, divs=None, steps=200):
+    """Delta and gamma read from the tree's own nodes (Hull).
+
+    Delta is the slope between the two nodes after one step, gamma the change
+    in slope across the three nodes after two. Bumping the spot and pricing
+    three trees would make gamma a second difference of a price that moves in
+    small steps as the strike falls between different nodes, which is mostly
+    noise. The node values come from the same tree as the price, so one tree
+    gives all three.
+    """
+    res = _crr(S, K, T, r, sigma, is_call, divs, steps)
+    nodes = res["nodes"]
+    if not nodes:
+        return {"delta": np.nan, "gamma": np.nan, "price": res["price"]}
+    (s1, v1), (s2, v2) = nodes[1], nodes[2]
+    delta = (v1[0] - v1[1]) / (s1[0] - s1[1])
+    slope_up = (v2[0] - v2[1]) / (s2[0] - s2[1])
+    slope_dn = (v2[1] - v2[2]) / (s2[1] - s2[2])
+    gamma = (slope_up - slope_dn) / (0.5 * (s2[0] - s2[2]))
+    return {"delta": float(delta), "gamma": float(gamma), "price": res["price"]}
 
 
 def bs_d2(S, K, T, r, sigma, q=0.0):

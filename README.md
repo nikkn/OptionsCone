@@ -1,7 +1,7 @@
 <h1>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/brand/optionscone-logo-dark.svg">
-    <img alt="OptionsCone" src="docs/brand/optionscone-logo-light.svg" height="60">
+    <img alt="OptionsCone" src="docs/brand/optionscone-logo-light.svg" width="300">
   </picture>
 </h1>
 

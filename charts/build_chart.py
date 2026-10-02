@@ -254,6 +254,9 @@ BODY = """<div class="wrap">
   <button class="zbtn" id="cm-iv" aria-pressed="false">IV</button>
   <button class="zbtn" id="cm-oi" aria-pressed="false">open int.</button>
   <button class="zbtn" id="cm-spr" aria-pressed="false">spread</button>
+  <button class="zbtn" id="cm-mid" aria-pressed="false" title="Option price, the mid of bid and ask">mid</button>
+  <button class="zbtn" id="cm-tv" aria-pressed="false" title="Time value per remaining day: the mid divided by the days to expiry (an average, decay speeds up towards expiry)">time value/day</button>
+  <button class="zbtn" id="cm-gap" aria-pressed="false" title="Implied probability minus the 10-year bootstrap, touch or expire as chosen under Contour. Red: the market prices more than history, blue: less">vs history</button>
   <span class="sep"></span>
   <button class="zbtn" id="dots" aria-pressed="true" title="Show or hide the contract markers">dots</button>
   <button class="zbtn" id="fs" title="Fill the window (Esc or F to leave)">fullscreen</button>
@@ -347,7 +350,7 @@ BODY = """<div class="wrap">
   <p>Close-to-close volatility over the last year, exponentially weighted with a 6-week half-life and annualized with 252 trading days.</p>
 
   <h3>The cone</h3>
-  <p>Probability coloring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike, so the field stays continuous; no dot is drawn there. IV, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. All four fields also fade out past the last expiry and beyond the outermost strike rows, so the cone ends softly; only transparency changes there, never the color. Probability uses a fixed 0 to 100% scale; IV a linear scale over the values shown; open interest and spread a logarithmic scale, with spread inverted so that darker means tighter.</p>
+  <p>Probability coloring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike, so the field stays continuous; no dot is drawn there. IV, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. All four fields also fade out past the last expiry and beyond the outermost strike rows, so the cone ends softly; only transparency changes there, never the color. Probability uses a fixed 0 to 100% scale; IV a linear scale over the values shown; open interest, spread, mid and time value per day a logarithmic scale, with spread inverted so that darker means tighter. The mid map shows the option price; time value per day is the mid divided by the days to expiry, an average over the remaining life since decay speeds up towards expiry (every contract shown is out of the money, so its whole price is time value). The vs history map is the implied probability minus the 10-year bootstrap, for touch or expire as chosen under Contour: red where the market prices more than history, blue where it prices less.</p>
 
   <h3>Contours</h3>
   <p>For each expiry and model, the contour marks the listed strike whose probability is closest to the target, separately above and below spot. A filled marker is within 5 percentage points of the target, a hollow one is the nearest available but further off.</p>
@@ -449,12 +452,38 @@ let showDots=true;
 //
 // `invert` flips a field so that dark always marks the favorable end: the
 // tightest spread is the darkest cell.
+//
+// The mid and the time value per day span orders of magnitude like open
+// interest, so they are logged too. Every contract shown is out of the money,
+// so its whole price is time value; per day it is the mid over the days left,
+// an average over the remaining life, since decay speeds up towards expiry.
+//
+// `div` marks a signed field drawn on its own two-hue ramp around zero: the
+// implied probability minus the 10-year bootstrap, for touch or expire as the
+// contour switch says. Positive means the market prices more than history.
+const midOf=c=>(c.bid!=null&&c.ask!=null&&c.ask>0&&c.bid>=0)?(c.bid+c.ask)/2:c.mid;
+const gapOf=c=>{
+  const imp=c[contourKind], hist=c[contourKind==='p'?'mc10d':'mc10dexp'];
+  return (imp==null||hist==null)?null:imp-hist;
+};
+const usd=v=>'$'+(v>=10?v.toFixed(1):v>=1?v.toFixed(2):v>=0.1?v.toFixed(3):v.toFixed(4));
 const COLOUR={
   p:  {label:'probability', field:c=>c.p, scale:'lin', fmt:v=>(v*100).toFixed(0)+'%'},
   iv: {label:'implied vol', field:c=>c.iv, scale:'lin', clip:false, fmt:v=>(v*100).toFixed(1)+'%'},
   oi: {label:'open interest', field:c=>c.oi, scale:'log', clip:false, fmt:v=>Math.round(v).toLocaleString('en-US')},
-  spr:{label:'spread', field:c=>c.spr, scale:'log', clip:false, invert:true, fmt:v=>(v*100).toFixed(1)+'%'}
+  spr:{label:'spread', field:c=>c.spr, scale:'log', clip:false, invert:true, fmt:v=>(v*100).toFixed(1)+'%'},
+  mid:{label:'mid price', field:c=>midOf(c), scale:'log', clip:false, fmt:usd},
+  tv: {label:'time value per day', field:c=>{const m=midOf(c);
+         return (m==null||!c._dte)?null:m/c._dte;}, scale:'log', clip:false, fmt:usd},
+  gap:{label:'implied minus 10y', field:c=>gapOf(c), scale:'lin', clip:false, div:true,
+       fmt:v=>(v>0?'+':v<0?'\u2212':'')+Math.abs(v*100).toFixed(1)+' pts'}
 };
+// Cells carry their expiry's days to expiry for the per-day field.
+function prepData(d){
+  if(!d||d._prep)return;
+  d.expiries.forEach(e=>e.cells.forEach(c=>{c._dte=e.dte;}));
+  d._prep=true;
+}
 // Values at or below zero cannot be logged and are left uncolored rather than
 // clamped: an open interest of zero is an absence, not a small amount.
 const scaleOf=v=>{
@@ -516,6 +545,27 @@ function buildLut(){  // 256 entries, even in perceived lightness
     _lut[k*3]=c[0];_lut[k*3+1]=c[1];_lut[k*3+2]=c[2];
   }
 }
+
+// The two-hue ramp for signed fields: blue below zero, red above, through a
+// light neutral that stays clear of the page background so a value near zero
+// does not look like a hole. Lightness is close to even across the middle and
+// darkens away from it on both sides.
+const DIV_STOPS=[[31,84,163],[74,130,205],[146,183,227],
+                 [214,170,165],[200,96,90],[160,28,26]];
+let _dlut=null;
+function buildDlut(){
+  _dlut=new Uint8Array(256*3);
+  const n=DIV_STOPS.length-1;
+  for(let k=0;k<256;k++){
+    const x=(k/255)*n, i=Math.min(n-1,Math.floor(x)), f=x-i;
+    const a=DIV_STOPS[i], b=DIV_STOPS[i+1];
+    for(let ch=0;ch<3;ch++)_dlut[k*3+ch]=Math.round(a[ch]+(b[ch]-a[ch])*f);
+  }
+}
+const lutFor=()=>{
+  if(COLOUR[colourBy].div){if(!_dlut)buildDlut();return _dlut;}
+  if(!_lut)buildLut();return _lut;
+};
 
 function lutIdx(p){return Math.min(255,Math.max(0,Math.round(p*255)));}
 function probColor(p,alpha){
@@ -602,6 +652,7 @@ function legendCaps(vlo,vhi){
         hi=document.getElementById('capHi');
   if(!lo||!mid||!hi)return;
   if(colourBy==='p'){lo.textContent='0';mid.textContent='50';hi.textContent='100%';return;}
+  if(C.div){lo.textContent=C.fmt(vlo);mid.textContent='0';hi.textContent=C.fmt(vhi);return;}
   // The ramp always runs pale to dark from left to right. For an inverted
   // field the pale end is the largest value, so the captions run the other
   // way.
@@ -611,11 +662,11 @@ function legendCaps(vlo,vhi){
 }
 
 function legend(){
-  if(!_lut)buildLut();
+  const L=lutFor();
   const stops=[];
   for(let i=0;i<=10;i++){
     const k=lutIdx(i/10)*3;
-    stops.push('rgb('+_lut[k]+','+_lut[k+1]+','+_lut[k+2]+') '+(i*10)+'%');}
+    stops.push('rgb('+L[k]+','+L[k+1]+','+L[k+2]+') '+(i*10)+'%');}
   const g='linear-gradient(90deg,'+stops.join(',')+')';
   document.querySelectorAll('.ramp i.grad').forEach((el,i)=>{
     el.style.background=g;el.style.backgroundSize='190px 100%';
@@ -625,6 +676,7 @@ function legend(){
 function draw(){
   if(!DATA[cur])return;  // app shell: data not loaded yet
   const d=DATA[cur];
+  prepData(d);
   const src=barMode==='w'?(d.ohlcw||d.ohlc):d.ohlc;
   const bars=src.slice(), exps=d.expiries, rows=d.rows;
   const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
@@ -837,6 +889,14 @@ function draw(){
         VHI=all.length?(CLIP?all[Math.floor(all.length*0.95)]
                              :all[all.length-1]):1;
         if(VHI<=VLO)VHI=VLO+1e-9;
+        // A signed field is centered on zero, its span set by the 98th
+        // percentile of the absolute values so one stray quote cannot flatten
+        // the rest.
+        if(COLOUR[colourBy].div){
+          const ab=all.map(Math.abs).sort((a,b)=>a-b);
+          const M=ab.length?Math.max(1e-6,ab[Math.floor((ab.length-1)*0.98)]):1;
+          VLO=-M; VHI=M;
+        }
       }
       // The dots are drawn in a later pass and must use the same scale.
       window._vlo=REL?VLO:null; window._vhi=REL?VHI:null;
@@ -854,7 +914,8 @@ function draw(){
       // Distance is measured in cells: one typical strike gap in log price
       // counts the same as one expiry gap in time, which keeps patches round
       // on screen. Beyond REACH of those units a pixel is left unpainted.
-      const REACH=1.35, PW=2.6;
+      const REACH=1.35, PW=2.6, DIVF=COLOUR[colourBy].div===true;
+      const LUT=lutFor();
       // Evaluated on a coarse lattice and sampled bilinearly per pixel, which
       // looks the same and costs a few thousand sums per frame instead of
       // hundreds of thousands.
@@ -864,7 +925,7 @@ function draw(){
       // The lattice depends only on the symbol, the field and the range of
       // strikes and dates on screen. Scrolling changes none of these, so it is
       // kept and rebuilt only when one of them moves.
-      const _key=REL?[cur,colourBy,kLo.toFixed(4),kHi.toFixed(4),
+      const _key=REL?[cur,colourBy,contourKind,kLo.toFixed(4),kHi.toFixed(4),
                       dNow,xs[xs.length-1],exps.length].join('|'):null;
       if(REL&&window._latKey===_key&&window._lat){
         LAT=window._lat;
@@ -923,8 +984,11 @@ function draw(){
               // the average, so a large position stays distinct from its
               // neighbours and a strike holding nothing stays pale next to it.
               const fall=1/(1+Math.pow(Math.sqrt(r2)/REACH,PW));
-              const claim=s0.v*fall+VLO*(1-fall);
-              if(den[idx]===0||claim>num[idx]){num[idx]=claim;den[idx]=1;}
+              // A signed field falls towards zero and keeps the claim that is
+              // largest in size, whatever its sign.
+              const claim=DIVF?s0.v*fall:s0.v*fall+VLO*(1-fall);
+              if(den[idx]===0||(DIVF?Math.abs(claim)>Math.abs(num[idx])
+                                    :claim>num[idx])){num[idx]=claim;den[idx]=1;}
             }
           }
         }
@@ -1061,7 +1125,7 @@ function draw(){
             let u2=(p-VLO)/(VHI-VLO||1);
             if(INV)u2=1-u2;
             const k2=lutIdx(Math.min(1,Math.max(0,u2)))*3;
-            px[o2]=_lut[k2];px[o2+1]=_lut[k2+1];px[o2+2]=_lut[k2+2];
+            px[o2]=LUT[k2];px[o2+1]=LUT[k2+1];px[o2+2]=LUT[k2+2];
             px[o2+3]=Math.round(226*sw*envA*cFade[ix]*edgeF);
           }
           continue;
@@ -1097,7 +1161,7 @@ function draw(){
             u=Math.min(1,Math.max(0,u));
           } else u=p;
           const k=lutIdx(u)*3;
-          px[o]=_lut[k];px[o+1]=_lut[k+1];px[o+2]=_lut[k+2];
+          px[o]=LUT[k];px[o+1]=LUT[k+1];px[o+2]=LUT[k+2];
           px[o+3]=Math.round((REL?226:alphaAt(p))*vFade*cFade[ix]);
         }
       }
@@ -1425,13 +1489,17 @@ function table(){
   // implied volatility, open interest or spread) for tradable contracts only:
   // a row appears only where at least one expiry lists that strike.
   const d=DATA[cur], C=COLOUR[colourBy], DL=tableMode==='delta';
+  prepData(d);
   const val=c=>{
     if(!c||c.synthetic)return null;
     const v=DL?c.delta:C.field(c); return (v==null||!isFinite(v))?null:v;};
-  const fmt=v=>DL?v.toFixed(3):colourBy==='oi'?Math.round(v).toLocaleString('en-US'):(v*100).toFixed(1)+'%';
+  const fmt=v=>DL?v.toFixed(3):colourBy==='oi'?Math.round(v).toLocaleString('en-US')
+    :(colourBy==='mid'||colourBy==='tv'||colourBy==='gap')?C.fmt(v):(v*100).toFixed(1)+'%';
   const title=DL?'delta: calls above spot, puts below':
     ({p:'touch probability, implied',iv:'implied volatility',
-      oi:'open interest',spr:'spread, % of mid'}[colourBy]||C.label);
+      oi:'open interest',spr:'spread, % of mid',mid:'mid price',
+      tv:'time value per remaining day (mid / days to expiry)',
+      gap:'implied minus 10-year bootstrap, '+(contourKind==='p'?'touch':'expire')}[colourBy]||C.label);
   let h='<div class="scroller"><table><caption class="note" style="text-align:left;caption-side:top">'+
     title+'</caption><thead><tr><th>Strike</th><th>vs spot</th>'+
     d.expiries.map(e=>'<th>'+e.expiry.slice(5)+' &middot; '+e.dte+'d</th>').join('')+'</tr></thead><tbody>';
@@ -1524,6 +1592,24 @@ cvEl.addEventListener('mousemove',ev=>{
     } else if(colourBy==='iv'){
       body='implied vol    '+(c.c.iv==null?'n/a':(c.c.iv*100).toFixed(1)+'%')+'\n'
          +(c.c.up?'call':'put');
+    } else if(colourBy==='mid'){
+      const m=midOf(c.c);
+      body='bid / ask      '+num(c.c.bid)+' / '+num(c.c.ask)+'\n'
+         +'mid            '+(m==null?'n/a':m.toFixed(2));
+    } else if(colourBy==='tv'){
+      const m=midOf(c.c);
+      body='mid            '+(m==null?'n/a':m.toFixed(2))+'\n'
+         +'days left      '+c.e.dte+'\n'
+         +'time value     '+(m==null?'n/a':usd(m/c.e.dte))+' per day\n'
+         +'(average over the remaining days)';
+    } else if(colourBy==='gap'){
+      const g=gapOf(c.c), tk=contourKind==='p';
+      body=(tk?'touch':'expire')+'\n'
+         +'  implied     '+f1(tk?c.c.p:c.c.pexp)+'\n'
+         +'  10y         '+f1(tk?c.c.mc10d:c.c.mc10dexp)+'\n'
+         +'  difference  '+(g==null?'n/a':COLOUR.gap.fmt(g))+'\n'
+         +(g==null?'':g>0?'the market prices more than history'
+                         :'the market prices less than history');
     } else if(colourBy==='spr'){
       body='bid / ask      '+num(c.c.bid)+' / '+num(c.c.ask)+'\n'
          +'spread         '+num(c.c.sprusd)+'   '
@@ -1685,7 +1771,7 @@ document.getElementById('plink').onclick=()=>{
     [['ck-p','p'],['ck-pexp','pexp']].forEach(([j,w])=>{
       const e=document.getElementById(j);
       if(e)e.setAttribute('aria-pressed',String(w===v));});
-    draw();readout();};
+    draw();readout();if(colourBy==='gap')table();};
 });
 
 MODELS.forEach(M=>{
@@ -1698,10 +1784,12 @@ MODELS.forEach(M=>{
   if(b)b.onclick=()=>{showDots=!showDots;
     b.setAttribute('aria-pressed',String(showDots));draw();};})();
 
-[['cm-p','p'],['cm-iv','iv'],['cm-oi','oi'],['cm-spr','spr']].forEach(([id,v])=>{
+const CM=[['cm-p','p'],['cm-iv','iv'],['cm-oi','oi'],['cm-spr','spr'],
+          ['cm-mid','mid'],['cm-tv','tv'],['cm-gap','gap']];
+CM.forEach(([id,v])=>{
   const b=document.getElementById(id);
   if(b)b.onclick=()=>{colourBy=v;
-    [['cm-p','p'],['cm-iv','iv'],['cm-oi','oi'],['cm-spr','spr']].forEach(([j,w])=>{
+    CM.forEach(([j,w])=>{
       const e=document.getElementById(j);
       if(e)e.setAttribute('aria-pressed',String(w===v));});
     yCenter=null;draw();legend();fieldLabel();table();};

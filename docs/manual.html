@@ -97,7 +97,7 @@
     <p>Up to ten years of daily or weekly candles. The dashed gold line is the current price (spot), labelled on the price axis. Stars on the date axis mark earnings: filled where the date is confirmed, hollow where it is projected from the reporting cycle, smaller for past reports.</p>
     <h3>The cone</h3>
     <p>To the right of today, each column of dots is one expiry, labelled with its days to expiry at the bottom. Each dot is a listed contract: calls above spot, puts below, so every contract shown is out of the money. A hollow dot means that contract's own quote failed the price checks and it uses the volatility of the nearest strike that passed.</p>
-    <p>The colour is the implied probability of touching that strike before that expiry, from pale (unlikely) to dark (likely). The legend under the chart gives the scale.</p>
+    <p>The color is the implied probability of touching that strike before that expiry, from pale (unlikely) to dark (likely). The legend under the chart gives the scale.</p>
     <h3>Contour lines</h3>
     <p>For every expiry, each model marks the listed strike whose probability is closest to your target, once above and once below spot, and joins the marks into a line. A filled marker is within 5 percentage points of the target; a hollow one is the nearest strike available but further off. Where no listed strike comes within 25 points, that expiry has no marker.</p>
     <p>The <span class="swatch" style="background:var(--track)"></span>implied line comes from option prices, the <span class="swatch" style="background:var(--m5)"></span>5y and <span class="swatch" style="background:var(--m10)"></span>10y lines from the stock's own history. When all three are shown, the implied line is drawn on top.</p>
@@ -116,8 +116,8 @@
       <tr><td><em>linked</em></td><td>Moves both sides together.</td></tr>
       <tr><td>Contour: <em>touch</em>, <em>expire</em></td><td>Whether the lines track the probability of touching the strike before expiry, or of finishing beyond it at expiry.</td></tr>
       <tr><td>Models: <em>implied</em>, <em>5y</em>, <em>10y</em></td><td>Show or hide each model's line.</td></tr>
-      <tr><td>Cone: <em>probability</em>, <em>IV</em>, <em>open int.</em>, <em>spread</em></td><td>What the cone is coloured by. Probability uses a fixed 0 to 100% scale; the others are stretched across the values on screen, with the ends shown in the legend. For spread, darker means tighter.</td></tr>
-      <tr><td><em>dots</em></td><td>Hides the contract dots to read the colour on its own. The tooltip keeps working.</td></tr>
+      <tr><td>Cone: <em>probability</em>, <em>IV</em>, <em>open int.</em>, <em>spread</em></td><td>What the cone is colored by. Probability uses a fixed 0 to 100% scale; the others are stretched across the values on screen, with the ends shown in the legend. For spread, darker means tighter.</td></tr>
+      <tr><td><em>dots</em></td><td>Hides the contract dots to read the color on its own. The tooltip keeps working.</td></tr>
       <tr><td><em>fullscreen</em></td><td>Fills the window with the chart and takes the controls along.</td></tr>
       <tr><td>Draw: <em>off</em>, <em>trend</em>, <em>horizontal</em>, <em>clear</em></td><td>Drawing tools. Trend lines are dragged from one point to another; a horizontal line is placed with one click. Drawings stay pinned to price and date when you zoom or scroll.</td></tr>
       <tr><td>EMA <em>1</em>, <em>2</em></td><td>Two exponential moving averages of the close. The number next to each is the period in trading days; on weekly bars it is converted to weeks. The settings are remembered.</td></tr>
@@ -137,7 +137,7 @@
     </table></div>
 
     <h2 id="tooltip">Tooltip</h2>
-    <p>Hover a dot to see that contract: strike, distance from spot, expiry, days to expiry, delta and gamma. Below that come the numbers for the current cone colouring:</p>
+    <p>Hover a dot to see that contract: strike, distance from spot, expiry, days to expiry, delta and gamma. Below that come the numbers for the current cone coloring:</p>
     <ul>
       <li><strong>probability:</strong> the contract's implied volatility, and touch and expire for all three models side by side, plus the mid price</li>
       <li><strong>IV:</strong> implied volatility, and whether it is a call or a put</li>
@@ -149,7 +149,7 @@
 
     <h2 id="table">Data table</h2>
     <figure><img class="shot" src="img/table.png" width="1384" height="823" loading="lazy" alt="The data table with strikes in rows and expiries in columns."></figure>
-    <p>Open <em>Data table</em> below the chart. Strikes are rows and expiries are columns. <em>cone colouring</em> shows the same values the cone is coloured by (in probability mode, the implied touch probability); <em>delta</em> shows each contract's delta, calls above spot and puts below. A dot means the expiry does not list that strike. The shaded rows are the strikes within 2% of spot.</p>
+    <p>Open <em>Data table</em> below the chart. Strikes are rows and expiries are columns. <em>cone coloring</em> shows the same values the cone is colored by (in probability mode, the implied touch probability); <em>delta</em> shows each contract's delta, calls above spot and puts below. A dot means the expiry does not list that strike. The shaded rows are the strikes within 2% of spot.</p>
 
     <h2 id="quality">Data quality and Methods</h2>
     <p><em>Data quality</em> shows how many quotes passed the checks, broken down by moneyness, with the median spread and open interest in each band. The rate that matters is the one for out-of-the-money contracts, because those are the ones the probabilities come from.</p>

@@ -8,7 +8,7 @@ answer as a cone on the price chart.
 
 ![OptionsCone showing AAPL](docs/screenshot.png)
 
-Each dot is a listed contract. The colour behind it is the probability that
+Each dot is a listed contract. The color behind it is the probability that
 the price touches that strike before that expiry. The contour lines follow a
 chosen probability (30% by default) through the expiries, once for each of
 three models:
@@ -20,7 +20,7 @@ three models:
 
 Where the market and the stock's history disagree, the lines separate.
 
-The cone can also be coloured by implied volatility, open interest or bid-ask
+The cone can also be colored by implied volatility, open interest or bid-ask
 spread. Hovering a contract shows its probabilities, quote, delta and gamma. A
 data table lists the values for the whole chain, and the Methods section in the
 app explains every number.

@@ -47,7 +47,7 @@ view from the stock's own history:
 - **Real highs and lows.** Each simulated day carries the intraday range of
   the day it was drawn from, so a touch is observed rather than inferred from
   closing prices with a Brownian-bridge correction.
-- **Drift kept.** The realised trend is part of the history, and a
+- **Drift kept.** The realized trend is part of the history, and a
   drift-free variant would double the number of lines on the chart without
   answering a different question.
 - **5 and 10 years.** Two windows show how much the answer depends on which
@@ -80,7 +80,7 @@ rate is dominated by deep contracts nobody reads.
 
 Contracts with fewer than 10 days to expiry or an absolute delta below 0.05
 are dropped entirely: their price is mostly tick size, and one of them can
-stretch a colour scale for the whole chain.
+stretch a color scale for the whole chain.
 
 ## Archive
 
@@ -115,6 +115,6 @@ Wheel zoom is collected and applied once per animation frame, in proportion to
 how far the wheel turned, so zooming stays smooth however fast the events
 arrive.
 
-The colour ramp is re-parameterised so that perceived lightness falls linearly
+The color ramp is re-parameterized so that perceived lightness falls linearly
 with probability. Open interest and spread span orders of magnitude and use a
 logarithmic scale; implied volatility stays linear.

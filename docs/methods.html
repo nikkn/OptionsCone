@@ -99,7 +99,7 @@
     <ul>
       <li><strong>Blocks.</strong> Paths are built from the daily returns of the last 5 or 10 years. Blocks of 20 consecutive trading days are drawn at random, with replacement, and joined until the longest expiry is covered. Drawing single days would destroy volatility clustering; month-long blocks keep calm and turbulent stretches intact, and fat tails and skew carry over.</li>
       <li><strong>Intraday range.</strong> Each simulated day carries the high and low of the real day it came from, relative to that day's close. A touch is counted when a simulated low (for strikes below spot) or high (above) reaches the strike, so the intraday range is observed, not inferred from closing prices.</li>
-      <li><strong>Drift kept.</strong> The realised trend of the window stays in the returns.</li>
+      <li><strong>Drift kept.</strong> The realized trend of the window stays in the returns.</li>
       <li><strong>10,000 paths</strong> per window. Near a probability of 27%, the counting noise is about 0.4 percentage points, far below the difference between the two windows.</li>
       <li><strong>One run</strong> per window to the longest expiry, read off at every shorter one, so probabilities can never fall with maturity.</li>
     </ul>
@@ -112,11 +112,11 @@
     <p>Only out-of-the-money quotes contribute, each wing stops after two consecutive zero bids, the forward <var>F</var> comes from put-call parity at the strike where call and put prices are closest, and <var>K<sub>0</sub></var> is the first strike at or below <var>F</var>. No pricing model is inverted, so the result can differ from an at-the-money implied volatility. The ratio below the badge divides it by realized volatility. (<code>src/varswap.py</code>)</p>
 
     <h2 id="rv">Realized volatility</h2>
-    <p>Close-to-close volatility over the last year, exponentially weighted with a six-week half-life and annualised with 252 trading days. Close-to-close includes overnight gaps, which is the movement an option pays out on. Returns are weighted around zero rather than around their mean. (<code>src/realized.py</code>)</p>
+    <p>Close-to-close volatility over the last year, exponentially weighted with a six-week half-life and annualized with 252 trading days. Close-to-close includes overnight gaps, which is the movement an option pays out on. Returns are weighted around zero rather than around their mean. (<code>src/realized.py</code>)</p>
 
     <h2 id="cone">Drawing the cone</h2>
-    <p>Probability colouring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike so the field stays continuous; no dot is drawn there. The colour ramp is adjusted so that perceived lightness falls evenly with probability.</p>
-    <p>Implied volatility, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. Probability uses a fixed 0 to 100% scale, implied volatility a linear scale over the values shown, and open interest and spread a logarithmic scale, with spread inverted so that darker means tighter.</p>
+    <p>Probability coloring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike so the field stays continuous; no dot is drawn there. The color ramp is adjusted so that perceived lightness falls evenly with probability.</p>
+    <p>Implied volatility, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. All four fields also fade out past the last expiry and beyond the outermost strike rows, so the cone ends softly; only transparency changes there, never the color. Probability uses a fixed 0 to 100% scale, implied volatility a linear scale over the values shown, and open interest and spread a logarithmic scale, with spread inverted so that darker means tighter.</p>
     <p>For each expiry and model, the contour marks the listed strike whose probability is closest to the target, separately above and below spot. A filled marker is within 5 percentage points of the target.</p>
 
     <h2 id="limits">Limits</h2>

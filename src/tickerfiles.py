@@ -21,7 +21,7 @@ from paths import sub
 
 # Bumped when the export format changes; older files are re-exported from the
 # archive on the next start, without a new download.
-FORMAT = 7
+FORMAT = 8
 
 
 def _json_dir():

@@ -181,11 +181,15 @@ for sym in SYMBOLS:
                 BASIS[f"{win}_{dtag}"] = None
 
     tk = yf.Ticker(sym)
-    # The bound comes from the longest expiry, which reaches furthest; every
-    # column uses the same ladder so rows line up.
-    last = s[s["expiry"] == sorted(s["expiry"].unique())[-1]]
-    lo_k = put_floor(last, spot, float(last["T"].iloc[0]))
-    hi_k = call_ceiling(last, spot, float(last["T"].iloc[0]))
+    # Each wing reaches as far as the widest expiry on that side. The longest
+    # expiry is not always the widest: a sparse last expiry would otherwise
+    # cut off strikes the expiries before it list. Every column uses the same
+    # ladder so rows line up.
+    reach = [(put_floor(g, spot, float(g["T"].iloc[0])),
+              call_ceiling(g, spot, float(g["T"].iloc[0])))
+             for _, g in s.groupby("expiry")]
+    lo_k = min(r[0] for r in reach)
+    hi_k = max(r[1] for r in reach)
     rows = ladder(s["strike"], spot, lo_k, hi_k)
     expiries = []
     _all_exp = sorted(s["expiry"].unique())

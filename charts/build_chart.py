@@ -76,7 +76,7 @@ h1{font-size:23px;font-weight:600;letter-spacing:-.015em;margin:0 0 6px;text-wra
 .bar.track{margin-top:-4px;padding-block:10px;border-top:1px dashed var(--line);
   border-bottom:1px dashed var(--line);margin-bottom:16px;
   flex-direction:column;align-items:stretch;gap:10px}
-/* One row per group of controls: probability tracking, cone colouring, and the
+/* One row per group of controls: probability tracking, cone coloring, and the
    drawing tools with the moving averages. */
 .trow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .sep{width:1px;height:20px;background:var(--line-2);display:inline-block}
@@ -244,8 +244,8 @@ BODY = """<div class="wrap">
   <span class="sep"></span>
   <span class="lab">Models</span>
   <button class="zbtn mdl" id="md-" aria-pressed="true" title="From the option prices">implied</button>
-  <button class="zbtn mdl" id="md-mc5d" aria-pressed="true" title="Bootstrap of the last five years, realised drift kept">5y</button>
-  <button class="zbtn mdl" id="md-mc10d" aria-pressed="true" title="Bootstrap of the last ten years, realised drift kept">10y</button>
+  <button class="zbtn mdl" id="md-mc5d" aria-pressed="true" title="Bootstrap of the last five years, realized drift kept">5y</button>
+  <button class="zbtn mdl" id="md-mc10d" aria-pressed="true" title="Bootstrap of the last ten years, realized drift kept">10y</button>
   <span class="trackout mono" id="trackout"></span>
  </div>
  <div class="trow">
@@ -311,14 +311,14 @@ BODY = """<div class="wrap">
   <summary>Data table</summary>
   <div class="bar" style="margin:12px 0 0">
     <span class="lab">Show</span>
-    <button class="zbtn" id="tb-cone" aria-pressed="true" title="The same values the cone is coloured by">cone colouring</button>
+    <button class="zbtn" id="tb-cone" aria-pressed="true" title="The same values the cone is colored by">cone coloring</button>
     <button class="zbtn" id="tb-delta" aria-pressed="false" title="Each contract's delta: calls above spot, puts below">delta</button>
   </div>
   <div id="tbl"></div>
 </details>
 
 <details id="dqbox">
-  <summary>Data quality: what these numbers rest on</summary>
+  <summary>Data quality</summary>
   <div id="dqout"></div>
 </details>
 
@@ -338,16 +338,16 @@ BODY = """<div class="wrap">
   <p>Touch is the probability that the price reaches the strike at any time before expiry, from the closed form for a lognormal price with the contract's own volatility. Expire is the probability of finishing beyond the strike, N(d2). Both use the same risk-neutral assumptions: the price drifts at the risk-free rate. Expire is not delta: delta is N(d1), and the two differ by the volatility over the time left, which is a wide gap on volatile stocks.</p>
 
   <h3>Bootstrap models (5y, 10y)</h3>
-  <p>Paths are built from the stock's own daily returns over the last 5 or 10 years. Blocks of 20 consecutive trading days are drawn with replacement and joined until the horizon is covered, so fat tails and runs of volatile days are kept. The realised drift is kept. Each simulated day carries the high and low of the real day it came from, so a touch is observed on the intraday range rather than inferred from closes. 10,000 paths per window. Touch is the share of paths whose low (high) reaches the strike by expiry; expire is the share whose final close is beyond it. These are historical frequencies, not option-market prices, and they only contain moves that happened in the sample.</p>
+  <p>Paths are built from the stock's own daily returns over the last 5 or 10 years. Blocks of 20 consecutive trading days are drawn with replacement and joined until the horizon is covered, so fat tails and runs of volatile days are kept. The realized drift is kept. Each simulated day carries the high and low of the real day it came from, so a touch is observed on the intraday range rather than inferred from closes. 10,000 paths per window. Touch is the share of paths whose low (high) reaches the strike by expiry; expire is the share whose final close is beyond it. These are historical frequencies, not option-market prices, and they only contain moves that happened in the sample.</p>
 
   <h3>Expiry badges</h3>
   <p>The badge above each expiry is its model-free implied volatility: the VIX variance-swap replication applied to that expiry alone, using out-of-the-money quotes weighted by dK/K&sup2;, the forward from put-call parity near the money, and a stop after two consecutive zero bids. The ratio below it divides that volatility by realized volatility.</p>
 
   <h3>Realized Vola</h3>
-  <p>Close-to-close volatility over the last year, exponentially weighted with a 6-week half-life and annualised with 252 trading days.</p>
+  <p>Close-to-close volatility over the last year, exponentially weighted with a 6-week half-life and annualized with 252 trading days.</p>
 
   <h3>The cone</h3>
-  <p>Probability colouring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike, so the field stays continuous; no dot is drawn there. IV, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. Probability uses a fixed 0 to 100% scale; IV a linear scale over the values shown; open interest and spread a logarithmic scale, with spread inverted so that darker means tighter.</p>
+  <p>Probability coloring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike, so the field stays continuous; no dot is drawn there. IV, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. All four fields also fade out past the last expiry and beyond the outermost strike rows, so the cone ends softly; only transparency changes there, never the color. Probability uses a fixed 0 to 100% scale; IV a linear scale over the values shown; open interest and spread a logarithmic scale, with spread inverted so that darker means tighter.</p>
 
   <h3>Contours</h3>
   <p>For each expiry and model, the contour marks the listed strike whose probability is closest to the target, separately above and below spot. A filled marker is within 5 percentage points of the target, a hollow one is the nearest available but further off.</p>
@@ -433,7 +433,7 @@ const ZOOM_MIN=0.03, ZOOM_MAX=14, ZOOM_HOME=0.35;
 // line being dragged; `ghost` is a horizontal level following the pointer
 // before it is placed.
 let tool='none', drawings=[], pending=null, ghost=null;
-// What the cone is coloured by. All four fields share one blue ramp, pale for
+// What the cone is colored by. All four fields share one blue ramp, pale for
 // low and dark for high. Probability has an absolute scale; the others are
 // stretched across what is on screen, and the legend gives the values at each
 // end.
@@ -442,12 +442,12 @@ let colourBy='p';
 // rows they crowd into solid lines.
 let showDots=true;
 // Scale per field. Open interest and spread span orders of magnitude, so they
-// are coloured on a log scale: a doubling is the step that matters, and a
+// are colored on a log scale: a doubling is the step that matters, and a
 // linear scale would push most of the surface into one end of the ramp.
 // Implied volatility is a rate with a narrow range across one chain and stays
 // linear.
 //
-// `invert` flips a field so that dark always marks the favourable end: the
+// `invert` flips a field so that dark always marks the favorable end: the
 // tightest spread is the darkest cell.
 const COLOUR={
   p:  {label:'probability', field:c=>c.p, scale:'lin', fmt:v=>(v*100).toFixed(0)+'%'},
@@ -455,7 +455,7 @@ const COLOUR={
   oi: {label:'open interest', field:c=>c.oi, scale:'log', clip:false, fmt:v=>Math.round(v).toLocaleString('en-US')},
   spr:{label:'spread', field:c=>c.spr, scale:'log', clip:false, invert:true, fmt:v=>(v*100).toFixed(1)+'%'}
 };
-// Values at or below zero cannot be logged and are left uncoloured rather than
+// Values at or below zero cannot be logged and are left uncolored rather than
 // clamped: an open interest of zero is an absence, not a small amount.
 const scaleOf=v=>{
   const sc=COLOUR[colourBy].scale;
@@ -484,8 +484,8 @@ const cellAt=(e,k)=>{
 // The opening zoom shows the whole term structure at once.
 let zoom=ZOOM_HOME, yCenter=null, yStretch=1;
 
-// Continuous colour. The control points run from a pale stop to deep blue, and
-// the ramp is re-parameterised so that perceived lightness (L*) falls linearly
+// Continuous color. The control points run from a pale stop to deep blue, and
+// the ramp is re-parameterized so that perceived lightness (L*) falls linearly
 // with probability: equal steps in probability are equal steps to the eye.
 const RAMP_HEX=['--q0','--p1','--p2','--p3','--p4','--p5','--p6','--p7'];
 let _ramp=null,_lut=null;
@@ -676,7 +676,7 @@ function draw(){
     const q=day(e.expiry);
     if(q<dFrom-2||q>dTo+2)return;
     // The price range follows the probability cone whichever field is
-    // coloured, so switching the colour never changes the vertical extent.
+    // colored, so switching the color never changes the vertical extent.
     e.cells.forEach(c=>{if((c.p||0)>=0.04){fLo=Math.min(fLo,c.k);fHi=Math.max(fHi,c.k);}});
   });
   if(dTo>=day(exps[0].expiry)-2)fHi=Math.max(fHi,d.spot);
@@ -749,7 +749,7 @@ function draw(){
   ctx.setLineDash([]);
 
   // Alpha is held flat across the field so that perceived lightness follows
-  // the colour ramp alone. Only the lowest probabilities fade, over a short
+  // the color ramp alone. Only the lowest probabilities fade, over a short
   // interval, so the cone dissolves into the page instead of ending on a hard
   // edge.
   const alphaAt=p=>p>=0.06?232:Math.round(232*(p/0.06));
@@ -759,9 +759,18 @@ function draw(){
   // and alpha falls to zero before the first expiry so the cone grows out of
   // today.
   {
-    const gx0=x(dNow), gx1=x(day(exps[exps.length-1].expiry));
+    // Past the last expiry and beyond the outermost ladder rows the field does
+    // not stop on a line. It keeps its edge values and fades to transparent
+    // over FADE_D days to the right and FADE_K in log price above and below.
+    // Only transparency changes there.
+    const xLast=day(exps[exps.length-1].expiry);
+    const FADE_D=Math.max(5,0.08*(xLast-dNow)), dEnd=Math.round(xLast+FADE_D);
     const kLo=rows[0], kHi=rows[rows.length-1];
-    const gy0=y(kHi), gy1=y(kLo);
+    const FADE_K=Math.max(0.05,0.18*Math.log(kHi/kLo));
+    const kTop=kHi*Math.exp(FADE_K), kBot=kLo*Math.exp(-FADE_K);
+    const fadeOut=u=>u<=0?1:u>=1?0:1-u*u*(3-2*u);  // smoothstep, 1 to 0
+    const gx0=x(dNow), gx1=x(dEnd);
+    const gy0=y(kTop), gy1=y(kBot);
     // Only the part of the field inside the visible window is computed.
     const wFull=Math.max(2,Math.round(gx1-gx0)), hFull=Math.max(2,Math.round(gy1-gy0));
     // The field starts just past the right edge of the last candle, so it
@@ -838,7 +847,7 @@ function draw(){
       // value at all four corners of every cell and leave whole bands blank
       // next to a sparse expiry.
       //
-      // Each contract colours its own neighbourhood. A contract needs no
+      // Each contract colors its own neighbourhood. A contract needs no
       // neighbours to be drawn; where several sit together their patches merge
       // into one block, and an isolated contract stays an island.
       //
@@ -849,7 +858,8 @@ function draw(){
       // Evaluated on a coarse lattice and sampled bilinearly per pixel, which
       // looks the same and costs a few thousand sums per frame instead of
       // hundreds of thousands.
-      const LW=120, LH=90;
+      const LW=120,
+            LH=Math.max(90,Math.round(90*Math.log(kTop/kBot)/Math.max(1e-9,Math.log(kHi/kLo))));
       let LAT=null;
       // The lattice depends only on the symbol, the field and the range of
       // strikes and dates on screen. Scrolling changes none of these, so it is
@@ -882,9 +892,9 @@ function draw(){
             pts.push({x:ex,lk:Math.log(c.k),v:t});
           });
         });
-        const vg=new Float64Array(LW*LH), ag=new Uint8Array(LW*LH);
+        const vg=new Float64Array(LW*LH), ag=new Float32Array(LW*LH);
         const d0=dNow, d1=xs[xs.length-1];
-        const lkLo=Math.log(kLo), lkHi=Math.log(kHi);
+        const lkLo=Math.log(kBot), lkHi=Math.log(kTop);
         const R2=REACH*REACH, FAR=R2*9, FARR=Math.sqrt(FAR);
         // Splatting: each contract writes into the lattice nodes within its
         // reach, instead of every node visiting every contract.
@@ -918,15 +928,22 @@ function draw(){
             }
           }
         }
+        // Within REACH of a contract a node is fully opaque. Beyond it the
+        // node keeps its value but fades out over most of another REACH, so
+        // the edge of the map is soft rather than a step.
         for(let idx=0;idx<LW*LH;idx++){
-          if(den[idx]>0&&nr2[idx]<=R2){vg[idx]=num[idx];ag[idx]=1;}
+          if(den[idx]>0){
+            const dn=Math.sqrt(nr2[idx]);
+            vg[idx]=num[idx];
+            ag[idx]=dn<=REACH?1:fadeOut((dn-REACH)/(0.8*REACH));
+          }
         }
         LAT={v:vg,a:ag,d0:d0,d1:d1,lkLo:lkLo,lkHi:lkHi,reachLog:REACH*dk};
         window._lat=LAT; window._latKey=_key;
       }
       // The contract envelope of each expiry, in log strike: the lowest and
       // highest listed contract, with half a strike gap of margin so an edge
-      // contract keeps its own colour around it. Between expiries it is
+      // contract keeps its own color around it. Between expiries it is
       // interpolated in time.
       let ENV=null;
       if(REL){
@@ -936,20 +953,29 @@ function draw(){
           if(!ks.length)return null;
           const n=ks.length;
           const gLo=n>1?ks[1]-ks[0]:0.01, gHi=n>1?ks[n-1]-ks[n-2]:0.01;
-          // Beyond the outermost contract the colour fades out over the splat
+          // Beyond the outermost contract the color fades out over the splat
           // reach, ending just inside it where the lattice runs out of values,
           // so the edge is never a hard line. Only transparency changes here;
-          // colours inside the envelope are unaffected.
+          // colors inside the envelope are unaffected.
           const w=0.9*((LAT&&LAT.reachLog)||0.05);
           return {lo:ks[0], hi:ks[n-1], wLo:w, wHi:w};
+        });
+        // The envelope only widens with time. A sparse expiry in between
+        // (quarterlies often list few strikes) would otherwise pinch it.
+        let _prev=null;
+        ENV.forEach(E=>{
+          if(!E)return;
+          if(_prev){E.lo=Math.min(E.lo,_prev.lo); E.hi=Math.max(E.hi,_prev.hi);}
+          _prev=E;
         });
       }
       // Everything that depends only on a pixel's column (the bracketing
       // expiries, the envelope at that date, the lattice position) is computed
       // once per column, and likewise per row.
-      const nX=wpx, spanD=xs[xs.length-1]-dNow;
+      const nX=wpx, spanD=dEnd-dNow;
       const cDD=new Float64Array(nX), cCI=new Int32Array(nX),
-            cCF=new Float64Array(nX), cPre=new Uint8Array(nX);
+            cCF=new Float64Array(nX), cPre=new Uint8Array(nX),
+            cFade=new Float64Array(nX).fill(1);
       {
         let ci=0;
         for(let ix=0;ix<nX;ix++){
@@ -957,7 +983,9 @@ function draw(){
           while(ci<xs.length-2&&xs[ci+1]<dd)ci++;  // dd only grows with ix
           cDD[ix]=dd; cCI[ix]=ci;
           if(dd<=xs[0]){cPre[ix]=1; cCF[ix]=(dd-dNow)/Math.max(1,xs[0]-dNow);}
-          else cCF[ix]=(dd-xs[ci])/(xs[ci+1]-xs[ci]);
+          else cCF[ix]=Math.min(1,(dd-xs[ci])/Math.max(1e-9,xs[ci+1]-xs[ci]));
+          // past the last expiry: last expiry's values, fading out
+          if(dd>xLast)cFade[ix]=fadeOut((dd-xLast)/FADE_D);
         }
       }
       let cSkip,cELo,cEHi,cWLo,cWHi,cI0,cTX;
@@ -967,28 +995,42 @@ function draw(){
         cI0=new Int32Array(nX); cTX=new Float64Array(nX);
         for(let ix=0;ix<nX;ix++){
           const dd=cDD[ix], ci=cCI[ix], A=ENV[ci], Bv=ENV[ci+1];
-          // Beyond the contract envelope at this date the colour fades out
+          // Beyond the contract envelope at this date the color fades out
           // (see where ENV is built).
-          if(dd<=xs[0]||!Bv){ const E=dd<=xs[0]?ENV[0]:A;
+          if(dd<=xs[0]){ const E=ENV[0];
+            if(!E){cSkip[ix]=1;continue;}
+            // Between today and the first expiry the envelope narrows to the
+            // spot, with the square root of time, like the probability cone.
+            const g=Math.sqrt(Math.max(0,(dd-dNow)/Math.max(1,xs[0]-dNow)));
+            const lS=Math.min(E.hi,Math.max(E.lo,Math.log(d.spot)));
+            cELo[ix]=lS+(E.lo-lS)*g; cEHi[ix]=lS+(E.hi-lS)*g;
+            cWLo[ix]=Math.max(1e-3,E.wLo*g); cWHi[ix]=Math.max(1e-3,E.wHi*g); }
+          else if(!Bv){ const E=A;
             if(!E){cSkip[ix]=1;continue;}
             cELo[ix]=E.lo; cEHi[ix]=E.hi; cWLo[ix]=E.wLo; cWHi[ix]=E.wHi; }
           else if(!A){ cELo[ix]=Bv.lo; cEHi[ix]=Bv.hi; cWLo[ix]=Bv.wLo; cWHi[ix]=Bv.wHi; }
           else {
-            const f=(dd-xs[ci])/Math.max(1e-9,xs[ci+1]-xs[ci]);
+            const f=Math.min(1,(dd-xs[ci])/Math.max(1e-9,xs[ci+1]-xs[ci]));
             cELo[ix]=A.lo+(Bv.lo-A.lo)*f; cEHi[ix]=A.hi+(Bv.hi-A.hi)*f;
             cWLo[ix]=A.wLo+(Bv.wLo-A.wLo)*f; cWHi[ix]=A.wHi+(Bv.wHi-A.wHi)*f;
           }
           // Where the column falls on the lattice; off it, nothing is drawn.
-          const fx=(dd-LAT.d0)/Math.max(1e-9,LAT.d1-LAT.d0)*(LW-1);
-          if(fx<0||fx>LW-1){cSkip[ix]=1;continue;}
+          const fx=Math.min(LW-1,(dd-LAT.d0)/Math.max(1e-9,LAT.d1-LAT.d0)*(LW-1));
+          if(fx<0){cSkip[ix]=1;continue;}
           const i0=Math.min(LW-2,Math.floor(fx)); cI0[ix]=i0; cTX[ix]=fx-i0;
         }
       }
       for(let iy=0;iy<hpx;iy++){
-        const price=kHi-((iy+iyOff)/(hFull-1))*(kHi-kLo);
+        const price=kTop-((iy+iyOff)/(hFull-1))*(kTop-kBot);
         // locate the strike bracket once per row
         let ri=0; while(ri<rows.length-2&&rows[ri+1]<price)ri++;
-        const rf=(price-rows[ri])/(rows[ri+1]-rows[ri]);
+        const rf=Math.min(1,Math.max(0,(price-rows[ri])/(rows[ri+1]-rows[ri])));
+        // Above and below the ladder the edge row's values fade out, and so
+        // does whatever runs into the top or bottom of the plot.
+        const rowY=Math.round(gy0)+iyOff+iy;
+        const edgeF=1-fadeOut(Math.min(rowY-TOP,TOP+PLOTH-rowY)/24);
+        const vFade=edgeF*(price>kHi?fadeOut(Math.log(price/kHi)/FADE_K)
+                   :price<kLo?fadeOut(Math.log(kLo/price)/FADE_K):1);
         const rowO=iy*wpx*4;
         if(LAT){
           // Sample the lattice. A pixel whose four surrounding nodes are all
@@ -1006,20 +1048,25 @@ function draw(){
             if(out>=1)continue;
             const envA=1-out*out*(3-2*out);  // smoothstep: soft start, soft end
             const q00=jb+cI0[ix], q10=q00+1, q01=q00+LW, q11=q01+1;
-            if(!LA[q00]||!LA[q10]||!LA[q01]||!LA[q11])continue;
             const tx=cTX[ix];
-            const top=LV[q00]+(LV[q10]-LV[q00])*tx;
-            const bot=LV[q01]+(LV[q11]-LV[q01])*tx;
-            const p=top+(bot-top)*ty;
+            // Bilinear, weighted by each node's opacity, so a faded node does
+            // not pull the color towards zero. With all four nodes opaque this
+            // is the plain bilinear sample.
+            const w00=(1-tx)*(1-ty)*LA[q00], w10=tx*(1-ty)*LA[q10],
+                  w01=(1-tx)*ty*LA[q01], w11=tx*ty*LA[q11];
+            const sw=w00+w10+w01+w11;
+            if(sw<=1e-4)continue;
+            const p=(w00*LV[q00]+w10*LV[q10]+w01*LV[q01]+w11*LV[q11])/sw;
             const o2=rowO+ix*4;
             let u2=(p-VLO)/(VHI-VLO||1);
             if(INV)u2=1-u2;
             const k2=lutIdx(Math.min(1,Math.max(0,u2)))*3;
             px[o2]=_lut[k2];px[o2+1]=_lut[k2+1];px[o2+2]=_lut[k2+2];
-            px[o2+3]=Math.round(226*envA);
+            px[o2+3]=Math.round(226*sw*envA*cFade[ix]*edgeF);
           }
           continue;
         }
+        if(vFade<=0)continue;
         const P0=P[0];
         for(let ix=0;ix<nX;ix++){
           const cf=cCF[ix];
@@ -1041,7 +1088,7 @@ function draw(){
             p=a+(b-a)*cf;
           }
           const o=rowO+ix*4;
-          // Normalise into 0..1, inverting where the low end is the favourable
+          // Normalize into 0..1, inverting where the low end is the favorable
           // one, then read the blue ramp. Relative fields keep a flat alpha.
           let u;
           if(REL){
@@ -1051,7 +1098,7 @@ function draw(){
           } else u=p;
           const k=lutIdx(u)*3;
           px[o]=_lut[k];px[o+1]=_lut[k+1];px[o+2]=_lut[k+2];
-          px[o+3]=REL?226:alphaAt(p);
+          px[o+3]=Math.round((REL?226:alphaAt(p))*vFade*cFade[ix]);
         }
       }
       octx.putImageData(img,0,0);
@@ -1092,7 +1139,7 @@ function draw(){
     });
   });
 
-  // One probability, three models. Each model gets its own colour and the same
+  // One probability, three models. Each model gets its own color and the same
   // rule: mark the listed strike nearest the chosen figure at every expiry, on
   // each side of spot, and join them.
   if(trackOn){
@@ -1242,14 +1289,14 @@ function draw(){
     ctx.fillStyle=panel;ctx.strokeStyle=line2;ctx.lineWidth=1;
     ctx.beginPath();ctx.roundRect?ctx.roundRect(bx,by,bw,bh,3):ctx.rect(bx,by,bw,bh);
     ctx.fill();ctx.stroke();
-    // a hairline in the field's own colour ties the badge to its column
+    // a hairline in the field's own color ties the badge to its column
     ctx.fillStyle=probColor(Math.min(1,e.mf_iv*2.2));
     ctx.fillRect(bx,by,bw,2.5);
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillStyle=css('--ink');ctx.font=(compact?'600 11px':'600 12px')+' "IBM Plex Mono",monospace';
     ctx.fillText((e.mf_iv*100).toFixed(1)+'%',cx,by+(compact?11:15));
     if(!compact&&e.ivrv!=null){
-      // the implied-to-realized ratio, coloured by how far above realized
+      // the implied-to-realized ratio, colored by how far above realized
       // volatility the market is pricing
       const rr=e.ivrv;
       ctx.fillStyle = rr>=1.30?css('--track') : rr>=1.05?css('--ink-2') : css('--ink-3');
@@ -1282,7 +1329,7 @@ function draw(){
       ctx.fillText(e.dte+'d',cx,r.y+20.5);
     }
   });
-  // The price axis is painted last, over a panel-coloured band at the current
+  // The price axis is painted last, over a panel-colored band at the current
   // scroll offset, so it stays legible however far the view has moved.
   const sx=(document.getElementById('scroller')||{}).scrollLeft||0;
   ctx.fillStyle=panel;ctx.fillRect(sx,0,PADL,H);
@@ -1306,7 +1353,7 @@ function draw(){
   ctx.fillText('IV %',sx+PADL-8,PADT+11);
   ctx.fillText('IV/RV',sx+PADL-8,PADT+26);
 
-  // User drawings, in a colour used by neither the field nor the contours.
+  // User drawings, in a color used by neither the field nor the contours.
   {
     const dc=css('--draw');
     const paint=(o,live)=>{
@@ -1370,11 +1417,11 @@ function draw(){
   });
 }
 
-// What the data table shows: the values the cone is coloured by, or each
+// What the data table shows: the values the cone is colored by, or each
 // contract's delta, for comparing a whole chain with a broker's.
 let tableMode='cone';
 function table(){
-  // The table shows whatever the cone is coloured by (touch probability,
+  // The table shows whatever the cone is colored by (touch probability,
   // implied volatility, open interest or spread) for tradable contracts only:
   // a row appears only where at least one expiry lists that strike.
   const d=DATA[cur], C=COLOUR[colourBy], DL=tableMode==='delta';
@@ -1458,7 +1505,7 @@ cvEl.addEventListener('mousemove',ev=>{
   if(c){
     const f1=v=>v==null?'  n/a ':(v*100).toFixed(1).padStart(5)+'%';
     const num=(v,d)=>v==null?'n/a':v.toFixed(d==null?2:d);
-    // The tooltip shows the field the cone is coloured by. For probability it
+    // The tooltip shows the field the cone is colored by. For probability it
     // shows all three models, since their disagreement is the point.
     //
     // Delta and gamma are the contract's own, for comparing with a broker.
@@ -1572,7 +1619,7 @@ function dqRender(){
   h+='<div class="scroller"><table><thead><tr><th>moneyness</th><th>n</th>'+
      '<th>clean</th><th>spread</th><th>open int.</th><th>med mid</th></tr></thead><tbody>';
   (q.bands||[]).forEach(b=>{
-    h+='<tr><td class="mono">'+b.lo.toFixed(2)+'&ndash;'+b.hi.toFixed(2)+'</td>'+
+    h+='<tr><td class="mono">'+b.lo.toFixed(2)+' to '+b.hi.toFixed(2)+'</td>'+
       '<td class="mono">'+b.n+'</td>'+
       '<td class="mono '+(b.clean>=0.85?'pos':b.clean<0.5?'neg':'')+'">'+pc(b.clean)+'</td>'+
       '<td class="mono">'+pc(b.median_spread)+'</td>'+
@@ -1581,7 +1628,7 @@ function dqRender(){
         ?b.median_mid.toFixed(2):'&middot;')+'</td></tr>';
   });
   h+='</tbody></table></div>';
-  h+='<p class="note">The money is where the volatility comes from and the wings are where the low probabilities live, so a single headline rate hides which half is failing. A quote passes when its spread is at most a quarter of the mid.</p>';
+  h+='<p class="note">Contracts near the money set the implied volatility, and the wings carry the low probabilities, so a single headline rate would hide which of the two is failing. A quote passes when its spread is at most a quarter of the mid.</p>';
   el.innerHTML=h;
 }
 
@@ -1695,7 +1742,7 @@ document.addEventListener('keydown',ev=>{
     sc.scrollLeft=s0-dx;
     yCenter=null;  // refit the price range to the new view
     // Dragging up or down slides the price window, so parts of the cone cut
-    // off by the fit can be pulled into view. Reset returns it to centre.
+    // off by the fit can be pulled into view. Reset returns it to center.
     yShift=ys0+(ev.clientY-y0)/PLOTH;
     if(!window._sticky){window._sticky=true;
       requestAnimationFrame(()=>{window._sticky=false;draw();});}

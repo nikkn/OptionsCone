@@ -489,9 +489,9 @@ const COLOUR={
   spr:{label:'spread', field:c=>c.spr, scale:'log', clip:false, invert:true, fmt:v=>(v*100).toFixed(1)+'%'},
   tv: {label:'time value per day', field:c=>{const m=midOf(c);
          return (m==null||!c._dte)?null:m/c._dte;}, scale:'log', clip:false, fmt:usd},
-  gap:{label:'touch probability, implied minus 10y', field:c=>gapOf(c), scale:'lin', clip:false, div:true,
+  gap:{label:'touch probability, implied minus 10y', field:c=>gapOf(c), scale:'lin', clip:false, div:true, blend:'avg',
        fmt:v=>(v>0?'+':v<0?'\u2212':'')+Math.abs(v*100).toFixed(1)+' pts'},
-  vpr:{label:'premium per unit risk', field:c=>vprOf(c), scale:'log', clip:false,
+  vpr:{label:'premium per unit risk', field:c=>vprOf(c), scale:'log', clip:false, blend:'avg',
        fmt:v=>v.toFixed(2)+'x'}
 };
 // Cells carry their expiry's days to expiry for the per-day field.
@@ -937,6 +937,11 @@ function draw(){
       // counts the same as one expiry gap in time, which keeps patches round
       // on screen. Beyond REACH of those units a pixel is left unpainted.
       const REACH=1.35, PW=2.6, DIVF=COLOUR[colourBy].div===true;
+      // Ratios and differences are blended by distance instead: each point is
+      // the average of the contracts around it, weighted by inverse distance
+      // cubed, so every contract shows its own value at its own position and
+      // a high value does not spill over its neighbours.
+      const AVG=COLOUR[colourBy].blend==='avg';
       const LUT=lutFor();
       // Evaluated on a coarse lattice and sampled bilinearly per pixel, which
       // looks the same and costs a few thousand sums per frame instead of
@@ -1008,6 +1013,11 @@ function draw(){
               const fall=1/(1+Math.pow(Math.sqrt(r2)/REACH,PW));
               // A signed field falls towards zero and keeps the claim that is
               // largest in size, whatever its sign.
+              if(AVG){
+                const w=1/Math.pow(r2+1e-4,1.5);
+                num[idx]+=w*s0.v; den[idx]+=w;
+                continue;
+              }
               const claim=DIVF?s0.v*fall:s0.v*fall+VLO*(1-fall);
               if(den[idx]===0||(DIVF?Math.abs(claim)>Math.abs(num[idx])
                                     :claim>num[idx])){num[idx]=claim;den[idx]=1;}
@@ -1020,7 +1030,7 @@ function draw(){
         for(let idx=0;idx<LW*LH;idx++){
           if(den[idx]>0){
             const dn=Math.sqrt(nr2[idx]);
-            vg[idx]=num[idx];
+            vg[idx]=AVG?num[idx]/den[idx]:num[idx];
             ag[idx]=dn<=REACH?1:fadeOut((dn-REACH)/(0.8*REACH));
           }
         }

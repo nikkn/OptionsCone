@@ -696,6 +696,11 @@ function legend(){
 }
 
 function draw(){
+  drawCore();
+  // The pinned tooltip follows its contract through scrolling and zooming.
+  if(!hover&&!tipOther)pinTip();
+}
+function drawCore(){
   if(!DATA[cur])return;  // app shell: data not loaded yet
   const d=DATA[cur];
   prepData(d);
@@ -1346,6 +1351,23 @@ function draw(){
     });
   }
 
+  // The picked contract: a ring with four ticks on a halo in the page color,
+  // so it reads on every color mode and is distinct from the thin hover ring.
+  if(pick&&pick.sym===cur){
+    const pe=exps.find(e=>e.expiry===pick.exp);
+    if(pe){
+      const px0=x(day(pe.expiry)), py0=y(pick.k), R=11;
+      const mark=(w,col)=>{
+        ctx.strokeStyle=col;ctx.lineWidth=w;
+        ctx.beginPath();ctx.arc(px0,py0,R,0,Math.PI*2);ctx.stroke();
+        [[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy])=>{
+          ctx.beginPath();ctx.moveTo(px0+dx*(R+2),py0+dy*(R+2));
+          ctx.lineTo(px0+dx*(R+8),py0+dy*(R+8));ctx.stroke();});
+      };
+      mark(5,css('--bg')); mark(2,css('--ink'));
+    }
+  }
+
   if(hover){  // re-find the hovered point in the new geometry and ring it
     const hx=x(day(hover.e.expiry)), hy=y(hover.c.k);
     ctx.beginPath();ctx.arc(hx,hy,Math.max(hover.r,9)+3,0,Math.PI*2);
@@ -1554,6 +1576,10 @@ function table(){
 
 const tip=document.getElementById('tip'), cvEl=document.getElementById('cv');
 let hover=null;
+// The picked contract stays marked, with its tooltip pinned, while the color
+// mode changes, so one contract can be read across every map. Kept by ticker,
+// expiry and strike, so it survives redraws, zoom and scrolling.
+let pick=null, tipOther=false;
 const pct2=v=>v==null?'  n/a':(v*100).toFixed(1).padStart(5)+'%';
 // Place the tooltip next to a point, on the right if it fits inside the visible
 // part of the chart, otherwise on the left. The stage is as wide as the whole
@@ -1593,6 +1619,7 @@ cvEl.addEventListener('mousemove',ev=>{
     tip.style.opacity=1;
     placeTip(er.cx,12);
     tip.style.top=Math.max(4,er.cy-74)+'px';
+    tipOther=true;
     if(hover){hover=null;draw();}
     return;
   }
@@ -1608,6 +1635,7 @@ cvEl.addEventListener('mousemove',ev=>{
     tip.style.opacity=1;
     placeTip(b.x+b.w,8);
     tip.style.top=(b.y+b.h+6)+'px';
+    tipOther=true;
     if(hover){hover=null;draw();}
     return;
   }
@@ -1616,7 +1644,14 @@ cvEl.addEventListener('mousemove',ev=>{
     const d2=(mx-o.cx)*(mx-o.cx)+(my-o.cy)*(my-o.cy);
     if(d2<=o.r*o.r&&d2<best){best=d2;c=o;}
   });
+  tipOther=false;
   if(c){
+    showTip(c);
+    if(hover!==c){hover=c;draw();}
+  } else { if(hover){hover=null;draw();} else pinTip(); }
+});
+function showTip(c){
+  const r=document.getElementById('stage').getBoundingClientRect();
     const f1=v=>v==null?'  n/a ':(v*100).toFixed(1).padStart(5)+'%';
     const num=(v,d)=>v==null?'n/a':v.toFixed(d==null?2:d);
     // The tooltip shows the field the cone is colored by. For probability it
@@ -1677,10 +1712,33 @@ cvEl.addEventListener('mousemove',ev=>{
     tip.style.opacity=1;
     placeTip(c.cx,14);
     tip.style.top=Math.min(c.cy+14,r.height-92)+'px';
-    if(hover!==c){hover=c;draw();}
-  } else { tip.style.opacity=0; if(hover){hover=null;draw();} }
-});
-cvEl.addEventListener('mouseleave',()=>{tip.style.opacity=0;if(window._bx!=null){window._bx=null;draw();}if(hover){hover=null;draw();}});
+}
+// Show the picked contract's tooltip, or hide the tooltip when nothing is
+// picked on this ticker or the contract is off screen.
+function pinTip(){
+  if(tipOther)return;
+  const o=(pick&&pick.sym===cur)?(window._cells||[]).find(o=>
+    o.e.expiry===pick.exp&&Math.abs(o.c.k-pick.k)<1e-9):null;
+  if(!o){tip.style.opacity=0;return;}
+  showTip(o);
+}
+// A click on a contract picks it; on the picked one, or on empty space, it
+// clears the pick.
+function pickAt(ev){
+  const r=document.getElementById('stage').getBoundingClientRect(),
+        mx=ev.clientX-r.left, my=ev.clientY-r.top;
+  let c=null,best=Infinity;
+  (window._cells||[]).forEach(o=>{
+    const d2=(mx-o.cx)*(mx-o.cx)+(my-o.cy)*(my-o.cy);
+    if(d2<=o.r*o.r&&d2<best){best=d2;c=o;}
+  });
+  const same=c&&pick&&pick.sym===cur&&pick.exp===c.e.expiry&&Math.abs(pick.k-c.c.k)<1e-9;
+  pick=(c&&!same)?{sym:cur,exp:c.e.expiry,k:c.c.k}:null;
+  draw();
+}
+cvEl.addEventListener('mouseleave',()=>{tipOther=false;
+  if(window._bx!=null){window._bx=null;draw();}
+  if(hover){hover=null;draw();} else pinTip();});
 
 // Ctrl + wheel zooms the calendar about the pointer. The pointer position is
 // measured against the scroller, not the canvas, which already contains the
@@ -1882,7 +1940,7 @@ document.addEventListener('keydown',ev=>{
   });
   window.addEventListener('pointermove',ev=>{
     if(!down)return;
-    const dx=ev.clientX-x0;moved=Math.max(moved,Math.abs(dx));
+    const dx=ev.clientX-x0;moved=Math.max(moved,Math.abs(dx),Math.abs(ev.clientY-y0));
     sc.scrollLeft=s0-dx;
     yCenter=null;  // refit the price range to the new view
     // Dragging up or down slides the price window, so parts of the cone cut
@@ -1891,8 +1949,10 @@ document.addEventListener('keydown',ev=>{
     if(!window._sticky){window._sticky=true;
       requestAnimationFrame(()=>{window._sticky=false;draw();});}
   });
-  window.addEventListener('pointerup',()=>{
-    down=false;sc.classList.remove('grabbing');});
+  window.addEventListener('pointerup',ev=>{
+    const was=down;
+    down=false;sc.classList.remove('grabbing');
+    if(was&&moved<4)pickAt(ev);});
 })();
 
 // Drawing
@@ -1977,6 +2037,7 @@ function setFull(on){
 document.getElementById('fs').onclick=()=>setFull(!fsOn);
 document.addEventListener('keydown',ev=>{
   if(ev.target.tagName==='INPUT')return;
+  if(ev.key==='Escape'&&pick){pick=null;draw();}
   if(ev.key==='Escape'&&fsOn)setFull(false);
   if((ev.key==='f'||ev.key==='F')&&!ev.metaKey&&!ev.ctrlKey)setFull(!fsOn);
 });

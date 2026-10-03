@@ -133,3 +133,12 @@ td:first-child { white-space: nowrap; }
 .map:hover { border-color: var(--ink-3); }
 .maps-note { font-size: 13.5px; color: var(--ink-3); margin-top: 10px; }
 @media (max-width: 700px) { .maps { grid-template-columns: repeat(2, 1fr); gap: 10px; } .map span { font-size: 13px; padding: 7px 9px; } }
+
+/* numbered legend under the feature screenshot */
+.marks { counter-reset: m; list-style: none; padding: 0; margin: 0 0 30px; display: grid;
+  grid-template-columns: repeat(3, 1fr); gap: 12px 28px; font-size: 14.5px; color: var(--ink-2); }
+.marks li { counter-increment: m; position: relative; padding-left: 34px; }
+.marks li::before { content: counter(m); position: absolute; left: 0; top: 1px; width: 23px; height: 23px; border-radius: 50%;
+  background: #c2410c; color: #fff; font: 600 13px/23px var(--sans); text-align: center; }
+.marks strong { color: var(--ink); }
+@media (max-width: 860px) { .marks { grid-template-columns: 1fr; } }

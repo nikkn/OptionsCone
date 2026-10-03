@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OptionsCone: probability, premium and positioning heatmaps</title>
-<meta name="description" content="Free Windows app: probability, premium and positioning heatmaps for every listed option, measured against ten years of the stock&#39;s own history.">
+<meta name="description" content="Free Windows app: probability, premium and positioning heatmaps for any stock with options, measured against ten years of the stock&#39;s own history.">
 <link rel="canonical" href="https://nikkn.github.io/OptionsCone/">
 <meta name="google-site-verification" content="AMuyXyZixV_yJbMoVUShqFuyZB4kxgZxZLLErU_1Yw0" />
 <link rel="icon" href="brand/favicon-16.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="OptionsCone: probability, premium and positioning heatmaps">
-<meta property="og:description" content="Every listed option as heatmaps on the price chart, measured against the stock&#39;s own history. Free and open source.">
+<meta property="og:description" content="The option chain as heatmaps on the price chart, measured against the stock&#39;s own history. Free and open source.">
 <meta property="og:url" content="https://nikkn.github.io/OptionsCone/">
-<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/social.png?v=4">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/social.png?v=5">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="OptionsCone: a probability cone over the listed option strikes of a stock, with implied and historical contour lines.">
@@ -35,7 +35,7 @@
   "license": "https://www.gnu.org/licenses/agpl-3.0.html",
   "downloadUrl": "https://github.com/nikkn/OptionsCone/releases/latest",
   "codeRepository": "https://github.com/nikkn/OptionsCone",
-  "screenshot": "https://nikkn.github.io/OptionsCone/img/app.png",
+  "screenshot": "https://nikkn.github.io/OptionsCone/img/avgo/app.png",
   "author": { "@type": "Person", "name": "Nikolai Alexander" }
 }
 </script>
@@ -80,8 +80,8 @@
 <div class="wrap">
 
   <div class="hero">
-    <h1>Probability, premium and positioning heatmaps for every listed option.</h1>
-    <p class="lede">OptionsCone turns the full option chain into heatmaps on the price chart: touch and expiry probabilities, implied volatility, open interest, spreads, time value and premium relative to risk for every listed strike and expiry. It compares what the option market implies with what the stock&#39;s own history says. For option traders and for anyone who holds stocks. Free and open source, for Windows.</p>
+    <h1>Probability, premium and positioning heatmaps for any stock with options.</h1>
+    <p class="lede">OptionsCone turns the option chain into heatmaps on the price chart: touch and expiry probabilities, implied volatility, open interest, spreads, time value and premium relative to risk, across the option chain of the next six months. It compares what the option market implies with what the stock&#39;s own history says. For option traders and for anyone who holds stocks. Free and open source, for Windows.</p>
     <div class="btn-row">
       <a class="btn primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download for Windows</a>
       <a class="btn" href="https://github.com/nikkn/OptionsCone">Source code</a>
@@ -89,13 +89,22 @@
     </div>
   </div>
 
-  <figure class="shot shot-hero">
-    <img src="img/app.png" width="1400" height="1318" alt="OptionsCone showing Apple (AAPL): ten years of daily candles, and to the right of today a blue probability cone over the listed strikes with implied, 5-year and 10-year contour lines at 30% touch probability.">
-  </figure>
+  <div class="maps">
+    <a class="map" href="img/avgo/chart-p.png"><span>Touch probability</span><img src="img/avgo/cone-p.png" width="550" height="840" alt="Broadcom (AVGO), Touch probability: dark near the money, fading where a touch becomes unlikely."></a>
+    <a class="map" href="img/avgo/chart-iv.png"><span>Implied volatility</span><img src="img/avgo/cone-iv.png" width="550" height="840" alt="Broadcom (AVGO), Implied volatility per contract: skew and term structure."></a>
+    <a class="map" href="img/avgo/chart-oi.png"><span>Open interest</span><img src="img/avgo/cone-oi.png" width="550" height="840" alt="Broadcom (AVGO), Open interest: where the large positions sit."></a>
+    <a class="map" href="img/avgo/chart-tv.png"><span>Time value per day</span><img src="img/avgo/cone-tv.png" width="550" height="840" alt="Broadcom (AVGO), Time value per remaining day, darkest near the money for short expiries."></a>
+    <a class="map" href="img/avgo/chart-gap.png"><span>Market vs history</span><img src="img/avgo/cone-gap.png" width="550" height="840" alt="Broadcom (AVGO), Implied minus historical touch probability: blue where the market prices more risk than history, red where less."></a>
+    <a class="map" href="img/avgo/chart-vpr.png"><span>Premium per unit risk</span><img src="img/avgo/cone-vpr.png" width="550" height="840" alt="Broadcom (AVGO), Option price relative to the average worst intrinsic value on the historical paths."></a>
+  </div>
+  <p class="maps-note">Broadcom (AVGO), 29 September 2026. Lines: the 30% touch contour from option prices (orange) and from the last five years (green). Click a map for the full chart.</p>
 
   <section>
     <p class="eyebrow">What you see</p>
     <h2>One chart for the whole option chain</h2>
+    <figure class="shot" style="margin:6px 0 28px">
+      <img src="img/avgo/app.png" width="1400" height="1318" loading="lazy" alt="OptionsCone showing Broadcom (AVGO): ten years of daily candles and, to the right of today, the probability cone over the listed strikes with the implied and the 5-year contour lines.">
+    </figure>
     <div class="grid3">
       <div class="card">
         <h3>The cone</h3>
@@ -122,26 +131,24 @@
         <h3>Build realistic scenarios</h3>
         <ul class="qlist">
           <li>How far can the stock plausibly move by a given date, up and down?</li>
-          <li>What are the chances my price target is reached?</li>
-          <li>Will a losing position get back to break-even within a few months?</li>
-          <li>How does the market's view compare with the last 5 and 10 years?</li>
+          <li>What are the chances my price target or my break-even is reached?</li>
+          <li>How much does the market price around the next earnings date?</li>
         </ul>
       </div>
       <div class="card">
         <h3>Manage risk at entry</h3>
         <ul class="qlist">
-          <li>What should I expect from this stock before opening a position, in both directions?</li>
           <li>How likely is a stop level to be hit during my holding period?</li>
-          <li>Is a stop so tight that ordinary movement will trigger it?</li>
+          <li>Where are large positions sitting, and are the quotes tight enough to trade?</li>
           <li>Is there an earnings date inside my horizon?</li>
         </ul>
       </div>
       <div class="card">
         <h3>Identify opportunities</h3>
         <ul class="qlist">
-          <li>Where do the option market and the stock's history disagree?</li>
-          <li>Is volatility high because the stock is moving, or because of an event ahead?</li>
-          <li>Which strikes carry large positions and tight quotes?</li>
+          <li>Where does the market price more risk than the stock's own history produced?</li>
+          <li>Which strikes pay a seller the most premium per unit of historical risk?</li>
+          <li>Where does time value melt fastest per day?</li>
         </ul>
       </div>
     </div>
@@ -158,38 +165,38 @@
   </section>
 
   <section>
-    <p class="eyebrow">Other views</p>
+    <p class="eyebrow">The maps</p>
     <h2>Color the cone by what matters for the trade</h2>
-    <p class="prose">The same cone can show implied volatility, open interest, the bid-ask spread, the time value per day, where the market prices more or less risk than the stock&#39;s own history, or the premium per unit of historical risk. Hover a contract for its quote, probabilities, delta and gamma.</p>
+    <p class="prose">One cone, seven ways to color it. Hover a contract for its quote, probabilities, delta and gamma; click it to keep its numbers on screen while you switch maps.</p>
     <div class="grid3">
-      <figure>
-        <a href="img/chart-iv.png"><img class="shot" src="img/cone-iv.png" width="544" height="760" loading="lazy" alt="Cone colored by implied volatility, darker where volatility is higher."></a>
-        <figcaption><strong>Implied volatility.</strong> The skew and the term structure at a glance, with the model-free volatility of each expiry in the badges.</figcaption>
-      </figure>
-      <figure>
-        <a href="img/chart-oi.png"><img class="shot" src="img/cone-oi.png" width="544" height="760" loading="lazy" alt="Cone colored by open interest, with dark patches at the strikes holding the largest positions."></a>
-        <figcaption><strong>Open interest.</strong> Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable.</figcaption>
-      </figure>
-      <figure>
-        <a href="img/chart-spr.png"><img class="shot" src="img/cone-spr.png" width="544" height="760" loading="lazy" alt="Cone colored by bid-ask spread, darker where quotes are tighter."></a>
-        <figcaption><strong>Spread.</strong> Darker means tighter quotes, so the contracts you can actually trade stand out.</figcaption>
-      </figure>
+      <div class="card">
+        <h3>Implied volatility</h3>
+        <p>Each contract&#39;s own volatility, so skew and the term structure show at a glance. The badges above each expiry give its model-free volatility. <a href="img/avgo/chart-iv.png">Full chart</a></p>
+      </div>
+      <div class="card">
+        <h3>Open interest</h3>
+        <p>Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable. <a href="img/avgo/chart-oi.png">Full chart</a></p>
+      </div>
+      <div class="card">
+        <h3>Spread</h3>
+        <p>Darker means tighter quotes, so the contracts you can actually trade stand out. <a href="img/avgo/chart-spr.png">Full chart</a></p>
+      </div>
     </div>
-    <h3 style="margin-top:36px">For option sellers</h3>
-    <p class="prose">Three maps answer the seller&#39;s question: which strikes pay the most for the risk taken. Click a contract to select it, then switch maps and its numbers follow.</p>
+    <h3 style="margin-top:30px">For option sellers</h3>
+    <p class="prose">Three maps answer the seller&#39;s question: which strikes pay the most for the risk taken.</p>
     <div class="grid3">
-      <figure>
-        <a href="img/chart-tv.png"><img class="shot" src="img/cone-tv.png" width="544" height="760" loading="lazy" alt="Cone colored by time value per remaining day, darkest near the money for short expiries."></a>
-        <figcaption><strong>Time value per day.</strong> The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value.</figcaption>
-      </figure>
-      <figure>
-        <a href="img/chart-gap.png"><img class="shot" src="img/cone-gap.png" width="544" height="760" loading="lazy" alt="Cone colored blue below spot and red above, comparing implied with historical touch probability."></a>
-        <figcaption><strong>vs history.</strong> The market&#39;s touch probability minus the stock&#39;s own last ten years. Blue where the market prices more risk than history produced, red where less.</figcaption>
-      </figure>
-      <figure>
-        <a href="img/chart-vpr.png"><img class="shot" src="img/cone-vpr.png" width="544" height="760" loading="lazy" alt="Cone colored by premium per unit of historical risk."></a>
-        <figcaption><strong>Premium per unit risk.</strong> The option price divided by the average intrinsic value at the worst point of each historical path. Higher means more premium for the risk history shows.</figcaption>
-      </figure>
+      <div class="card">
+        <h3>Time value per day</h3>
+        <p>The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value. <a href="img/avgo/chart-tv.png">Full chart</a></p>
+      </div>
+      <div class="card">
+        <h3>vs history</h3>
+        <p>The market&#39;s touch probability minus the stock&#39;s own last ten years. Blue where the market prices more risk than history produced, red where less. <a href="img/avgo/chart-gap.png">Full chart</a></p>
+      </div>
+      <div class="card">
+        <h3>Premium per unit risk</h3>
+        <p>The option price divided by the average intrinsic value at the worst point of each historical path. Higher means more premium for the risk history shows. <a href="img/avgo/chart-vpr.png">Full chart</a></p>
+      </div>
     </div>
   </section>
 
@@ -202,7 +209,7 @@
         <p>A data quality report shows how many quotes passed the checks, by moneyness, and the Methods section explains every calculation. Nothing is hidden behind a score.</p>
       </div>
       <figure>
-        <img class="shot" src="img/table.png" width="1384" height="823" loading="lazy" alt="Data table of touch probabilities for AAPL, strikes in rows and expiries in columns.">
+        <img class="shot" src="img/avgo/table.png" width="1384" height="823" loading="lazy" alt="Data table of touch probabilities for Broadcom (AVGO), strikes in rows and expiries in columns.">
       </figure>
     </div>
   </section>

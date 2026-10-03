@@ -123,3 +123,13 @@ td:first-child { white-space: nowrap; }
 .site-foot p { margin: 0 0 6px; }
 
 .qlist { margin: 0; padding-left: 18px; color: var(--ink-2); display: grid; gap: 8px; }
+
+/* hero: six color modes */
+.maps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 8px; }
+.map { display: block; border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+  overflow: hidden; text-decoration: none; color: var(--ink); }
+.map span { display: block; font-weight: 600; font-size: 14px; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.map img { width: 100%; height: auto; display: block; }
+.map:hover { border-color: var(--ink-3); }
+.maps-note { font-size: 13.5px; color: var(--ink-3); margin-top: 10px; }
+@media (max-width: 700px) { .maps { grid-template-columns: repeat(2, 1fr); gap: 10px; } .map span { font-size: 13px; padding: 7px 9px; } }

@@ -6,7 +6,7 @@ answer as a cone on the price chart.
 
 **Website, manual and methods: https://nikkn.github.io/OptionsCone/**
 
-![OptionsCone showing AAPL](docs/screenshot.png)
+![OptionsCone showing Broadcom (AVGO)](docs/screenshot.png)
 
 Each dot is a listed contract. The color behind it is the probability that
 the price touches that strike before that expiry. The contour lines follow a

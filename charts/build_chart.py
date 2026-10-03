@@ -23,6 +23,7 @@ HEAD = """<meta charset="utf-8">
   --bg:#faf9f5; --panel:#ffffff; --ink:#12130f; --ink-2:#55564d; --ink-3:#8a8b80;
   --line:#e3e2d9; --line-2:#cfcec2; --spot:#b8891f; --up:#3f6f4a; --dn:#a8443c;
   --q0:#f0f6fe; --p1:#cde2fb; --p2:#9ec5f4; --p3:#6da7ec; --p4:#3987e5; --p5:#256abf; --p6:#184f95; --p7:#0d366b;
+  --h0:#fef1ee; --h1:#fbd5cd; --h2:#f5ab9c; --h3:#ec806b; --h4:#dd5943; --h5:#bf3c28; --h6:#962a1a; --h7:#691a0e;
   --on-light:#12130f; --on-dark:#ffffff; --warn-bg:#fdf3e0; --warn-ink:#7a5510; --warn-line:#e8cf9c;
   --bad-bg:#fdecea; --bad-ink:#8f1d16; --bad-line:#d9564b;
   --future:#f4f3ed; --track:#c2410c; --draw:#3f6f4a; --earn:#7c4bb8;
@@ -32,6 +33,7 @@ HEAD = """<meta charset="utf-8">
   --bg:#15161a; --panel:#1c1e22; --ink:#f2f1ea; --ink-2:#b0b1a6; --ink-3:#7d7e74;
   --line:#2c2e33; --line-2:#3c3f45; --spot:#d6a53c; --up:#6aa87a; --dn:#d1706a;
   --q0:#0f1f33; --p1:#16304d; --p2:#1b4272; --p3:#20549a; --p4:#2a6ac0; --p5:#3987e5; --p6:#6da7ec; --p7:#9ec5f4;
+  --h0:#2e1512; --h1:#4a1c16; --h2:#6e261c; --h3:#963223; --h4:#c0432f; --h5:#dd5943; --h6:#ec806b; --h7:#f5ab9c;
   --on-light:#f2f1ea; --on-dark:#0b1220; --warn-bg:#2e2515; --warn-ink:#e8c887; --warn-line:#5c4a22;
   --bad-bg:#3a1714; --bad-ink:#ffb4ab; --bad-line:#b8453c;
   --future:#191b1f; --track:#fb923c; --draw:#6aa87a; --earn:#b08ce8;
@@ -41,6 +43,7 @@ HEAD = """<meta charset="utf-8">
   --bg:#15161a; --panel:#1c1e22; --ink:#f2f1ea; --ink-2:#b0b1a6; --ink-3:#7d7e74;
   --line:#2c2e33; --line-2:#3c3f45; --spot:#d6a53c; --up:#6aa87a; --dn:#d1706a;
   --q0:#0f1f33; --p1:#16304d; --p2:#1b4272; --p3:#20549a; --p4:#2a6ac0; --p5:#3987e5; --p6:#6da7ec; --p7:#9ec5f4;
+  --h0:#2e1512; --h1:#4a1c16; --h2:#6e261c; --h3:#963223; --h4:#c0432f; --h5:#dd5943; --h6:#ec806b; --h7:#f5ab9c;
   --on-light:#f2f1ea; --on-dark:#0b1220; --warn-bg:#2e2515; --warn-ink:#e8c887; --warn-line:#5c4a22;
   --bad-bg:#3a1714; --bad-ink:#ffb4ab; --bad-line:#b8453c;
   --future:#191b1f; --track:#fb923c; --draw:#6aa87a; --earn:#b08ce8;
@@ -250,13 +253,14 @@ BODY = """<div class="wrap">
  </div>
  <div class="trow">
   <span class="lab">Cone</span>
-  <button class="zbtn" id="cm-p" aria-pressed="true">probability</button>
+  <button class="zbtn" id="cm-p" aria-pressed="true" title="Touch probability from the option prices, in blue. Can be shown together with the 10-year probability">prob. implied</button>
+  <button class="zbtn" id="cm-h" aria-pressed="false" title="Touch probability from the 10-year bootstrap, in red. Both on: the two are overlaid, and where only one color shows, the market and history disagree">prob. 10y</button>
   <button class="zbtn" id="cm-iv" aria-pressed="false">IV</button>
   <button class="zbtn" id="cm-oi" aria-pressed="false">open int.</button>
   <button class="zbtn" id="cm-spr" aria-pressed="false">spread</button>
-  <button class="zbtn" id="cm-mid" aria-pressed="false" title="Option price, the mid of bid and ask">mid</button>
   <button class="zbtn" id="cm-tv" aria-pressed="false" title="Time value per remaining day: the mid divided by the days to expiry (an average, decay speeds up towards expiry)">time value/day</button>
-  <button class="zbtn" id="cm-gap" aria-pressed="false" title="Implied probability minus the 10-year bootstrap, touch or expire as chosen under Contour. Red: the market prices more than history, blue: less">vs history</button>
+  <button class="zbtn" id="cm-gap" aria-pressed="false" title="Implied touch probability minus the 10-year bootstrap. Blue: the market prices more risk than history (rich premium for a seller), red: less">vs history</button>
+  <button class="zbtn" id="cm-vpr" aria-pressed="false" title="Premium per unit of risk for a seller: the mid divided by the average intrinsic value at each 10-year path's worst point before expiry">premium/risk</button>
   <span class="sep"></span>
   <button class="zbtn" id="dots" aria-pressed="true" title="Show or hide the contract markers">dots</button>
   <button class="zbtn" id="fs" title="Fill the window (Esc or F to leave)">fullscreen</button>
@@ -350,7 +354,7 @@ BODY = """<div class="wrap">
   <p>Close-to-close volatility over the last year, exponentially weighted with a 6-week half-life and annualized with 252 trading days.</p>
 
   <h3>The cone</h3>
-  <p>Probability coloring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike, so the field stays continuous; no dot is drawn there. IV, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. All four fields also fade out past the last expiry and beyond the outermost strike rows, so the cone ends softly; only transparency changes there, never the color. Probability uses a fixed 0 to 100% scale; IV a linear scale over the values shown; open interest, spread, mid and time value per day a logarithmic scale, with spread inverted so that darker means tighter. The mid map shows the option price; time value per day is the mid divided by the days to expiry, an average over the remaining life since decay speeds up towards expiry (every contract shown is out of the money, so its whole price is time value). The vs history map is the implied probability minus the 10-year bootstrap, for touch or expire as chosen under Contour: red where the market prices more than history, blue where it prices less.</p>
+  <p>Probability coloring is interpolated between the listed strikes and expiries, in log price. Where an expiry does not list a strike, the probability is computed from the volatility of its nearest listed strike, so the field stays continuous; no dot is drawn there. IV, open interest and spread are painted outward from each contract, each point taking the strongest nearby contract, and fade out beyond the outermost listed strikes. All four fields also fade out past the last expiry and beyond the outermost strike rows, so the cone ends softly; only transparency changes there, never the color. Probability uses a fixed 0 to 100% scale; IV a linear scale over the values shown; open interest, spread, time value per day and premium per unit risk a logarithmic scale, with spread inverted so that darker means tighter. The implied and the 10-year touch probability can be shown together: blue and red are mixed where they agree, and where only one color shows, the market and history disagree. Time value per day is the mid divided by the days to expiry, an average over the remaining life since decay speeds up towards expiry (every contract shown is out of the money, so its whole price is time value). The vs history map is the implied touch probability minus the 10-year bootstrap: blue where the market prices more risk than history (a rich premium for a seller), red where it prices less. Touch rather than expire, because it rests on volatility more than on the trend the history happened to have. Premium per unit risk is the mid divided by the average intrinsic value at the worst point of each 10-year path before expiry, all paths counted; it is left out where fewer than 50 of the 10,000 paths reach the strike.</p>
 
   <h3>Contours</h3>
   <p>For each expiry and model, the contour marks the listed strike whose probability is closest to the target, separately above and below spot. A filled marker is within 5 percentage points of the target, a hollow one is the nearest available but further off.</p>
@@ -453,35 +457,54 @@ let showDots=true;
 // `invert` flips a field so that dark always marks the favorable end: the
 // tightest spread is the darkest cell.
 //
-// The mid and the time value per day span orders of magnitude like open
-// interest, so they are logged too. Every contract shown is out of the money,
-// so its whole price is time value; per day it is the mid over the days left,
-// an average over the remaining life, since decay speeds up towards expiry.
+// `abs` marks the probability fields, which have an absolute scale from zero
+// to one: the implied touch probability (blue), the 10-year one (red), or both
+// overlaid.
+//
+// The time value per day spans orders of magnitude like open interest, so it
+// is logged too. Every contract shown is out of the money, so its whole price
+// is time value; per day it is the mid over the days left, an average over the
+// remaining life, since decay speeds up towards expiry.
 //
 // `div` marks a signed field drawn on its own two-hue ramp around zero: the
-// implied probability minus the 10-year bootstrap, for touch or expire as the
-// contour switch says. Positive means the market prices more than history.
+// implied touch probability minus the 10-year bootstrap. Touch rather than
+// expire, because it rests on volatility more than on the trend the history
+// happened to have. Positive means the market prices more risk than history,
+// a rich premium for a seller, and is drawn blue.
+//
+// Premium per unit risk is the mid over the average intrinsic value at each
+// 10-year path's worst point before expiry, all paths counted. Where fewer
+// than 50 paths reach the strike the ratio is noise and is left out.
 const midOf=c=>(c.bid!=null&&c.ask!=null&&c.ask>0&&c.bid>=0)?(c.bid+c.ask)/2:c.mid;
-const gapOf=c=>{
-  const imp=c[contourKind], hist=c[contourKind==='p'?'mc10d':'mc10dexp'];
-  return (imp==null||hist==null)?null:imp-hist;
+const gapOf=c=>(c.p==null||c.mc10d==null)?null:c.p-c.mc10d;
+let NPATHS=10000;
+const vprOf=c=>{
+  const m=midOf(c);
+  if(m==null||c.mae==null||!(c.mae>0))return null;
+  if((c.mc10d||0)*NPATHS<50)return null;
+  return m/c.mae;
 };
 const usd=v=>'$'+(v>=10?v.toFixed(1):v>=1?v.toFixed(2):v>=0.1?v.toFixed(3):v.toFixed(4));
 const COLOUR={
-  p:  {label:'probability', field:c=>c.p, scale:'lin', fmt:v=>(v*100).toFixed(0)+'%'},
+  p:  {label:'touch probability, implied', field:c=>c.p, scale:'lin', abs:true, fmt:v=>(v*100).toFixed(0)+'%'},
+  h:  {label:'touch probability, 10y', field:c=>c.mc10d, scale:'lin', abs:true, fmt:v=>(v*100).toFixed(0)+'%'},
+  ph: {label:'touch probability: implied blue, 10y red', field:c=>c.p, scale:'lin', abs:true, overlay:true,
+       fmt:v=>(v*100).toFixed(0)+'%'},
   iv: {label:'implied vol', field:c=>c.iv, scale:'lin', clip:false, fmt:v=>(v*100).toFixed(1)+'%'},
   oi: {label:'open interest', field:c=>c.oi, scale:'log', clip:false, fmt:v=>Math.round(v).toLocaleString('en-US')},
   spr:{label:'spread', field:c=>c.spr, scale:'log', clip:false, invert:true, fmt:v=>(v*100).toFixed(1)+'%'},
-  mid:{label:'mid price', field:c=>midOf(c), scale:'log', clip:false, fmt:usd},
   tv: {label:'time value per day', field:c=>{const m=midOf(c);
          return (m==null||!c._dte)?null:m/c._dte;}, scale:'log', clip:false, fmt:usd},
-  gap:{label:'implied minus 10y', field:c=>gapOf(c), scale:'lin', clip:false, div:true,
-       fmt:v=>(v>0?'+':v<0?'\u2212':'')+Math.abs(v*100).toFixed(1)+' pts'}
+  gap:{label:'touch probability, implied minus 10y', field:c=>gapOf(c), scale:'lin', clip:false, div:true,
+       fmt:v=>(v>0?'+':v<0?'\u2212':'')+Math.abs(v*100).toFixed(1)+' pts'},
+  vpr:{label:'premium per unit risk', field:c=>vprOf(c), scale:'log', clip:false,
+       fmt:v=>v.toFixed(2)+'x'}
 };
 // Cells carry their expiry's days to expiry for the per-day field.
 function prepData(d){
   if(!d||d._prep)return;
   d.expiries.forEach(e=>e.cells.forEach(c=>{c._dte=e.dte;}));
+  if(d.n_paths)NPATHS=d.n_paths;
   d._prep=true;
 }
 // Values at or below zero cannot be logged and are left uncolored rather than
@@ -502,7 +525,7 @@ const val=(c,f)=>{
   // A synthetic cell has no contract, so on the open-interest and spread maps
   // it has no value; the field is interpolated across it from the listed
   // strikes either side, and nothing is extrapolated beyond them.
-  if(c.synthetic&&colourBy!=='p'&&colourBy!=='iv')return null;
+  if(c.synthetic&&!COLOUR[colourBy].abs&&colourBy!=='iv')return null;
   const v=COLOUR[colourBy].field(c);
   return (v==null||!isFinite(v))?null:v;
 };
@@ -533,25 +556,35 @@ function _Lstar(c){
   const y=0.2126*_lin(c[0])+0.7152*_lin(c[1])+0.0722*_lin(c[2]);
   return y<=0.008856?903.3*y:116*Math.pow(y,1/3)-16;
 }
-function buildLut(){  // 256 entries, even in perceived lightness
-  _ramp=rampStops();
+// The 10-year probability uses the same construction on a red family, so the
+// two can be overlaid and still read as the same scale.
+const RAMP_RED=['--h0','--h1','--h2','--h3','--h4','--h5','--h6','--h7'];
+let _rlut=null;
+function makeLut(names){  // 256 entries, even in perceived lightness
+  _ramp=names.map(n=>hex2rgb(css(n)));
   const L0=_Lstar(_raw(0)), L1=_Lstar(_raw(1));
-  _lut=new Uint8Array(256*3);
+  const out=new Uint8Array(256*3);
   for(let k=0;k<256;k++){
     const want=L0+(L1-L0)*(k/255);
     let lo=0,hi=1;
     for(let it=0;it<24;it++){const m=(lo+hi)/2;if(_Lstar(_raw(m))>want)lo=m;else hi=m;}
     const c=_raw((lo+hi)/2);
-    _lut[k*3]=c[0];_lut[k*3+1]=c[1];_lut[k*3+2]=c[2];
+    out[k*3]=c[0];out[k*3+1]=c[1];out[k*3+2]=c[2];
   }
+  return out;
+}
+function buildLut(){
+  _rlut=makeLut(RAMP_RED);
+  _lut=makeLut(RAMP_HEX);   // leaves _ramp on the blue family
 }
 
-// The two-hue ramp for signed fields: blue below zero, red above, through a
+// The two-hue ramp for signed fields: red below zero, blue above, through a
 // light neutral that stays clear of the page background so a value near zero
 // does not look like a hole. Lightness is close to even across the middle and
-// darkens away from it on both sides.
-const DIV_STOPS=[[31,84,163],[74,130,205],[146,183,227],
-                 [214,170,165],[200,96,90],[160,28,26]];
+// darkens away from it on both sides. Blue, the app's own color, marks the end
+// that is favorable to a seller.
+const DIV_STOPS=[[160,28,26],[200,96,90],[214,170,165],
+                 [146,183,227],[74,130,205],[31,84,163]];
 let _dlut=null;
 function buildDlut(){
   _dlut=new Uint8Array(256*3);
@@ -564,7 +597,7 @@ function buildDlut(){
 }
 const lutFor=()=>{
   if(COLOUR[colourBy].div){if(!_dlut)buildDlut();return _dlut;}
-  if(!_lut)buildLut();return _lut;
+  if(!_lut)buildLut();return colourBy==='h'?_rlut:_lut;
 };
 
 function lutIdx(p){return Math.min(255,Math.max(0,Math.round(p*255)));}
@@ -651,7 +684,8 @@ function legendCaps(vlo,vhi){
         mid=document.getElementById('capMid'),
         hi=document.getElementById('capHi');
   if(!lo||!mid||!hi)return;
-  if(colourBy==='p'){lo.textContent='0';mid.textContent='50';hi.textContent='100%';return;}
+  if(C.overlay){lo.textContent='0';mid.textContent='100%  \u00b7  0';hi.textContent='100%';return;}
+  if(C.abs){lo.textContent='0';mid.textContent='50';hi.textContent='100%';return;}
   if(C.div){lo.textContent=C.fmt(vlo);mid.textContent='0';hi.textContent=C.fmt(vhi);return;}
   // The ramp always runs pale to dark from left to right. For an inverted
   // field the pale end is the largest value, so the captions run the other
@@ -662,6 +696,16 @@ function legendCaps(vlo,vhi){
 }
 
 function legend(){
+  // Overlay: the first half of the legend is the blue ramp, the second the red.
+  if(COLOUR[colourBy].overlay){
+    if(!_lut)buildLut();
+    const gr=L2=>'linear-gradient(90deg,'+[0,1,2,3,4,5,6,7,8,9,10].map(i=>{
+      const k=lutIdx(i/10)*3; return 'rgb('+L2[k]+','+L2[k+1]+','+L2[k+2]+') '+(i*10)+'%';}).join(',')+')';
+    document.querySelectorAll('.ramp i.grad').forEach((el,i)=>{
+      el.style.background=gr(i?_rlut:_lut);el.style.backgroundSize='95px 100%';
+      el.style.backgroundPosition='0 0';});
+    return;
+  }
   const L=lutFor();
   const stops=[];
   for(let i=0;i<=10;i++){
@@ -841,20 +885,19 @@ function draw(){
       // the column does not list is interpolated in log price between the
       // listed strikes either side, so a log field is interpolated
       // logarithmically as well.
-      const REL_FIELD=colourBy!=='p';
-      const P=exps.map(e=>{
+      const gridOf=fv=>exps.map(e=>{
         // Only strikes that carry a value for this field anchor the
         // interpolation. A contract whose own quote failed the checks has a
         // borrowed volatility but no open interest or spread; it is spanned
         // over rather than treated as a break.
         const ks=e.cells.map(c=>c.k).sort((a,b)=>a-b)
-          .filter(k=>{const raw=val(cellAt(e,k));
+          .filter(k=>{const raw=fv(cellAt(e,k));
                       if(raw==null)return false;
                       const t=scaleOf(raw); return t!=null&&isFinite(t);});
-        const lk=ks.map(Math.log), vs=ks.map(k=>scaleOf(val(cellAt(e,k))));
+        const lk=ks.map(Math.log), vs=ks.map(k=>scaleOf(fv(cellAt(e,k))));
         return rows.map(k=>{
           const c=cellAt(e,k);
-          if(c){const raw=val(c);
+          if(c){const raw=fv(c);
                 if(raw!=null){const t=scaleOf(raw);
                               if(t!=null&&isFinite(t))return t;}}
           if(ks.length<2)return null;
@@ -867,12 +910,16 @@ function draw(){
           return vs[i]+(vs[i+1]-vs[i])*t;
         });
       });
+      const P=gridOf(c=>val(c));
+      // Overlay: a second grid with the 10-year touch probability.
+      const OVL=COLOUR[colourBy].overlay===true;
+      const PH=OVL?gridOf(c=>{const v=c.mc10d;return (v==null||!isFinite(v))?null:v;}):null;
 
       if(!_lut)buildLut();
       // Probability has an absolute scale, zero to one, and is drawn on the
       // ramp directly. Every other field is relative and is stretched across
       // what the visible columns hold.
-      const REL=colourBy!=='p';
+      const REL=!COLOUR[colourBy].abs;
       const INV=COLOUR[colourBy].invert===true;
       let VLO=0,VHI=1;
       if(REL){
@@ -925,7 +972,7 @@ function draw(){
       // The lattice depends only on the symbol, the field and the range of
       // strikes and dates on screen. Scrolling changes none of these, so it is
       // kept and rebuilt only when one of them moves.
-      const _key=REL?[cur,colourBy,contourKind,kLo.toFixed(4),kHi.toFixed(4),
+      const _key=REL?[cur,colourBy,kLo.toFixed(4),kHi.toFixed(4),
                       dNow,xs[xs.length-1],exps.length].join('|'):null;
       if(REL&&window._latKey===_key&&window._lat){
         LAT=window._lat;
@@ -1131,27 +1178,44 @@ function draw(){
           continue;
         }
         if(vFade<=0)continue;
-        const P0=P[0];
-        for(let ix=0;ix<nX;ix++){
+        const sampleG=(G,ix)=>{
           const cf=cCF[ix];
-          let p;
           if(cPre[ix]){  // between today and the first expiry
-            const u0=P0[ri],u1=P0[ri+1];
-            if(u0==null||u1==null)continue;
+            const u0=G[0][ri],u1=G[0][ri+1];
+            if(u0==null||u1==null)return null;
             const v0=u0+(u1-u0)*rf;
             // Probability is zero today and grows towards the first expiry, so
             // it ramps. Open interest, spread and volatility belong to the
             // contract, not to elapsed time, so they hold their value back to
             // today.
-            p=REL?v0:v0*cf;
-          } else {
-            const ci=cCI[ix], Pa=P[ci], Pb=P[ci+1];
-            const a0=Pa[ri],a1=Pa[ri+1],b0=Pb[ri],b1=Pb[ri+1];
-            if(a0==null||a1==null||b0==null||b1==null)continue;  // nothing quoted here
-            const a=a0+(a1-a0)*rf, b=b0+(b1-b0)*rf;
-            p=a+(b-a)*cf;
+            return REL?v0:v0*cf;
           }
+          const ci=cCI[ix], Pa=G[ci], Pb=G[ci+1];
+          const a0=Pa[ri],a1=Pa[ri+1],b0=Pb[ri],b1=Pb[ri+1];
+          if(a0==null||a1==null||b0==null||b1==null)return null;  // nothing quoted here
+          const a=a0+(a1-a0)*rf, b=b0+(b1-b0)*rf;
+          return a+(b-a)*cf;
+        };
+        for(let ix=0;ix<nX;ix++){
           const o=rowO+ix*4;
+          if(OVL){
+            // Both probabilities, each on its own ramp. The two colors are
+            // mixed in proportion to their opacity, so neither covers the
+            // other: where they agree they blend evenly, where only one
+            // reaches it shows on its own.
+            const pb=sampleG(P,ix), pr=sampleG(PH,ix);
+            if(pb==null&&pr==null)continue;
+            const ab=pb==null?0:alphaAt(pb)/255, ar=pr==null?0:alphaAt(pr)/255;
+            const sw=ab+ar;
+            if(sw<=0)continue;
+            const kb=lutIdx(pb||0)*3, kr=lutIdx(pr||0)*3;
+            for(let ch=0;ch<3;ch++)
+              px[o+ch]=Math.round((_lut[kb+ch]*ab+_rlut[kr+ch]*ar)/sw);
+            px[o+3]=Math.round(255*(1-(1-ab)*(1-ar))*0.92*vFade*cFade[ix]);
+            continue;
+          }
+          const p=sampleG(P,ix);
+          if(p==null)continue;
           // Normalize into 0..1, inverting where the low end is the favorable
           // one, then read the blue ramp. Relative fields keep a flat alpha.
           let u;
@@ -1494,12 +1558,14 @@ function table(){
     if(!c||c.synthetic)return null;
     const v=DL?c.delta:C.field(c); return (v==null||!isFinite(v))?null:v;};
   const fmt=v=>DL?v.toFixed(3):colourBy==='oi'?Math.round(v).toLocaleString('en-US')
-    :(colourBy==='mid'||colourBy==='tv'||colourBy==='gap')?C.fmt(v):(v*100).toFixed(1)+'%';
+    :(colourBy==='tv'||colourBy==='gap'||colourBy==='vpr')?C.fmt(v):(v*100).toFixed(1)+'%';
   const title=DL?'delta: calls above spot, puts below':
-    ({p:'touch probability, implied',iv:'implied volatility',
-      oi:'open interest',spr:'spread, % of mid',mid:'mid price',
+    ({p:'touch probability, implied',h:'touch probability, 10-year bootstrap',
+      ph:'touch probability, implied / 10-year bootstrap',iv:'implied volatility',
+      oi:'open interest',spr:'spread, % of mid',
       tv:'time value per remaining day (mid / days to expiry)',
-      gap:'implied minus 10-year bootstrap, '+(contourKind==='p'?'touch':'expire')}[colourBy]||C.label);
+      gap:'touch probability, implied minus 10-year bootstrap',
+      vpr:'premium per unit risk: mid / average intrinsic value at the worst point of the 10-year paths'}[colourBy]||C.label);
   let h='<div class="scroller"><table><caption class="note" style="text-align:left;caption-side:top">'+
     title+'</caption><thead><tr><th>Strike</th><th>vs spot</th>'+
     d.expiries.map(e=>'<th>'+e.expiry.slice(5)+' &middot; '+e.dte+'d</th>').join('')+'</tr></thead><tbody>';
@@ -1509,7 +1575,12 @@ function table(){
     if(!c0)return;
     const atm=Math.abs(c0.pct)<2.0?' class="atm"':'';
     h+='<tr'+atm+'><td class="mono">'+k.toFixed(2)+'</td><td class="mono">'+(c0.pct>0?'+':'')+c0.pct.toFixed(1)+'%</td>'+
-      cs.map(c=>{const v=val(c);
+      cs.map(c=>{
+        if(colourBy==='ph'&&!DL){
+          if(!c||c.synthetic||c.p==null)return '<td class="mono">&middot;</td>';
+          return '<td class="mono">'+(c.p*100).toFixed(1)+' / '+
+            (c.mc10d==null?'&middot;':(c.mc10d*100).toFixed(1))+'</td>';}
+        const v=val(c);
         return '<td class="mono">'+(v==null?'&middot;':fmt(v))+'</td>';}).join('')+'</tr>';
   });
   h+='</tbody><tfoot><tr><th>ATM IV</th><th></th>'+
@@ -1520,6 +1591,17 @@ function table(){
 const tip=document.getElementById('tip'), cvEl=document.getElementById('cv');
 let hover=null;
 const pct2=v=>v==null?'  n/a':(v*100).toFixed(1).padStart(5)+'%';
+// Place the tooltip next to a point, on the right if it fits inside the visible
+// part of the chart, otherwise on the left. The stage is as wide as the whole
+// timeline, so the limit is the scroller's view, not the stage.
+function placeTip(px, gap){
+  const sc=document.getElementById('scroller');
+  const vl=sc.scrollLeft, vr=sc.scrollLeft+sc.clientWidth;
+  const w=tip.offsetWidth||220;
+  let left=px+gap;
+  if(left+w>vr-4)left=px-gap-w;
+  tip.style.left=Math.max(vl+4,left)+'px';
+}
 cvEl.addEventListener('mousemove',ev=>{
   // The session under the pointer; the axis counts sessions, so this is a
   // division.
@@ -1545,7 +1627,7 @@ cvEl.addEventListener('mousemove',ev=>{
       (e.when?'\n'+(e.when==='bmo'?'before the open':'after the close'):'')+
       (e.past?'\nalready reported':'');
     tip.style.opacity=1;
-    tip.style.left=Math.max(4,Math.min(er.cx+12,r.width-200))+'px';
+    placeTip(er.cx,12);
     tip.style.top=Math.max(4,er.cy-74)+'px';
     if(hover){hover=null;draw();}
     return;
@@ -1560,7 +1642,7 @@ cvEl.addEventListener('mousemove',ev=>{
       'forward '+e.mf_f+
       (e.ivrv!=null?'\nIV / RV30     '+e.ivrv.toFixed(2)+'x':'');
     tip.style.opacity=1;
-    tip.style.left=Math.max(4,Math.min(b.x+b.w+8,r.width-220))+'px';
+    placeTip(b.x+b.w,8);
     tip.style.top=(b.y+b.h+6)+'px';
     if(hover){hover=null;draw();}
     return;
@@ -1592,10 +1674,6 @@ cvEl.addEventListener('mousemove',ev=>{
     } else if(colourBy==='iv'){
       body='implied vol    '+(c.c.iv==null?'n/a':(c.c.iv*100).toFixed(1)+'%')+'\n'
          +(c.c.up?'call':'put');
-    } else if(colourBy==='mid'){
-      const m=midOf(c.c);
-      body='bid / ask      '+num(c.c.bid)+' / '+num(c.c.ask)+'\n'
-         +'mid            '+(m==null?'n/a':m.toFixed(2));
     } else if(colourBy==='tv'){
       const m=midOf(c.c);
       body='mid            '+(m==null?'n/a':m.toFixed(2))+'\n'
@@ -1603,13 +1681,20 @@ cvEl.addEventListener('mousemove',ev=>{
          +'time value     '+(m==null?'n/a':usd(m/c.e.dte))+' per day\n'
          +'(average over the remaining days)';
     } else if(colourBy==='gap'){
-      const g=gapOf(c.c), tk=contourKind==='p';
-      body=(tk?'touch':'expire')+'\n'
-         +'  implied     '+f1(tk?c.c.p:c.c.pexp)+'\n'
-         +'  10y         '+f1(tk?c.c.mc10d:c.c.mc10dexp)+'\n'
+      const g=gapOf(c.c);
+      body='touch probability\n'
+         +'  implied     '+f1(c.c.p)+'\n'
+         +'  10y         '+f1(c.c.mc10d)+'\n'
          +'  difference  '+(g==null?'n/a':COLOUR.gap.fmt(g))+'\n'
-         +(g==null?'':g>0?'the market prices more than history'
-                         :'the market prices less than history');
+         +(g==null?'':g>0?'market prices more risk than history\n(rich premium for a seller)'
+                         :'market prices less risk than history\n(cheap premium for a seller)');
+    } else if(colourBy==='vpr'){
+      const m=midOf(c.c), v=vprOf(c.c);
+      body='mid              '+(m==null?'n/a':m.toFixed(2))+'\n'
+         +'avg worst ITM    '+(c.c.mae==null?'n/a':c.c.mae.toFixed(2))+'\n'
+         +'paths touching   '+f1(c.c.mc10d)+'\n'
+         +'premium / risk   '+(v==null?'n/a (too few paths reach it)':v.toFixed(2)+'x')+'\n'
+         +'(10-year paths: intrinsic value\nat each path\'s worst point)';
     } else if(colourBy==='spr'){
       body='bid / ask      '+num(c.c.bid)+' / '+num(c.c.ask)+'\n'
          +'spread         '+num(c.c.sprusd)+'   '
@@ -1626,7 +1711,7 @@ cvEl.addEventListener('mousemove',ev=>{
     }
     tip.textContent=head+body+warn;
     tip.style.opacity=1;
-    tip.style.left=Math.max(4,Math.min(c.cx+14,r.width-214))+'px';
+    placeTip(c.cx,14);
     tip.style.top=Math.min(c.cy+14,r.height-92)+'px';
     if(hover!==c){hover=c;draw();}
   } else { tip.style.opacity=0; if(hover){hover=null;draw();} }
@@ -1771,7 +1856,7 @@ document.getElementById('plink').onclick=()=>{
     [['ck-p','p'],['ck-pexp','pexp']].forEach(([j,w])=>{
       const e=document.getElementById(j);
       if(e)e.setAttribute('aria-pressed',String(w===v));});
-    draw();readout();if(colourBy==='gap')table();};
+    draw();readout();};
 });
 
 MODELS.forEach(M=>{
@@ -1784,16 +1869,29 @@ MODELS.forEach(M=>{
   if(b)b.onclick=()=>{showDots=!showDots;
     b.setAttribute('aria-pressed',String(showDots));draw();};})();
 
-const CM=[['cm-p','p'],['cm-iv','iv'],['cm-oi','oi'],['cm-spr','spr'],
-          ['cm-mid','mid'],['cm-tv','tv'],['cm-gap','gap']];
+// The two probability buttons switch on and off independently; with both on
+// the fields are overlaid. Any other mode replaces them.
+const CM=[['cm-iv','iv'],['cm-oi','oi'],['cm-spr','spr'],
+          ['cm-tv','tv'],['cm-gap','gap'],['cm-vpr','vpr']];
+function setColour(v){
+  colourBy=v;
+  const pOn=v==='p'||v==='ph', hOn=v==='h'||v==='ph';
+  [['cm-p',pOn],['cm-h',hOn]].forEach(([j,on])=>{
+    const e=document.getElementById(j); if(e)e.setAttribute('aria-pressed',String(on));});
+  CM.forEach(([j,w])=>{
+    const e=document.getElementById(j); if(e)e.setAttribute('aria-pressed',String(w===v));});
+  yCenter=null;draw();legend();fieldLabel();table();
+}
 CM.forEach(([id,v])=>{
-  const b=document.getElementById(id);
-  if(b)b.onclick=()=>{colourBy=v;
-    CM.forEach(([j,w])=>{
-      const e=document.getElementById(j);
-      if(e)e.setAttribute('aria-pressed',String(w===v));});
-    yCenter=null;draw();legend();fieldLabel();table();};
-});
+  const b=document.getElementById(id); if(b)b.onclick=()=>setColour(v);});
+function toggleProb(which){
+  let [a,b]=({p:[1,0],h:[0,1],ph:[1,1]}[colourBy]||[0,0]);
+  if(which==='p')a=1-a; else b=1-b;
+  if(!a&&!b)return;  // one of the two always stays on
+  setColour(a&&b?'ph':a?'p':'h');
+}
+[['cm-p','p'],['cm-h','h']].forEach(([id,w])=>{
+  const b=document.getElementById(id); if(b)b.onclick=()=>toggleProb(w);});
 
 document.querySelectorAll('.stepper').forEach((el,i)=>{
   el.addEventListener('wheel',ev=>{ev.preventDefault();

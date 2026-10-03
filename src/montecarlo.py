@@ -167,6 +167,38 @@ def hit_rates_at(run, S0, barrier, n_days, up=False):
 
 
 _EXTCACHE = {}
+_PREFIX = {}
+
+
+def worst_intrinsic_at(run, barrier, n_days, up=False):
+    """Average intrinsic value at each path's worst point, over all paths.
+
+    For a short put the worst point of a path is its lowest low up to
+    n_days, worth max(K - lowest low, 0); for a short call it is the highest
+    high, worth max(highest high - K, 0). Paths that never reach the strike
+    count as zero. From the same sorted extremes as hit_rates_at, with a
+    running sum, so each strike is one binary search.
+    """
+    import weakref
+    mins, maxs, _ = _sorted_extremes(run, n_days)
+    closes = run[0]
+    key = (id(closes), int(n_days))
+    hit = _PREFIX.get(key)
+    if hit is None or hit[0]() is not closes:
+        for k in [k for k, v in _PREFIX.items() if v[0]() is None]:
+            del _PREFIX[k]
+        hit = (weakref.ref(closes),
+               np.concatenate([[0.0], np.cumsum(mins)]),
+               np.concatenate([[0.0], np.cumsum(maxs)]))
+        _PREFIX[key] = hit
+    _, pre_lo, pre_hi = hit
+    n = len(mins)
+    b = float(barrier)
+    if up:
+        j = int(np.searchsorted(maxs, b, side="left"))
+        return float((pre_hi[n] - pre_hi[j]) - (n - j) * b) / n
+    i = int(np.searchsorted(mins, b, side="right"))
+    return float(i * b - pre_lo[i]) / n
 
 
 def _sorted_extremes(run, n_days):

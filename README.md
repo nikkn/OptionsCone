@@ -21,8 +21,9 @@ three models:
 Where the market and the stock's history disagree, the lines separate.
 
 The cone can also be colored by implied volatility, open interest, bid-ask
-spread, option price, time value per day, or the gap between the implied and
-the historical probability. Hovering a contract shows its probabilities, quote, delta and gamma. A
+spread, time value per day, the gap between the implied and the historical
+probability, or the premium per unit of historical risk. The implied and the
+historical probability can also be overlaid. Hovering a contract shows its probabilities, quote, delta and gamma. A
 data table lists the values for the whole chain, and the Methods section in the
 app explains every number.
 

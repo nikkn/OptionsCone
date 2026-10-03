@@ -18,7 +18,8 @@ from varswap import variance_one_expiry
 from dataquality import report as dq_report
 from realized import realized
 from earnings import earnings, past_earnings
-from montecarlo import (_log_bars, basis_run, hit_rates_at, TRADING_DAYS)
+from montecarlo import (_log_bars, basis_run, hit_rates_at, TRADING_DAYS,
+                        worst_intrinsic_at)
 from optionev import usable_ivs
 
 SYMBOLS = sys.argv[1:] or ["AAPL"]
@@ -303,6 +304,11 @@ for sym in SYMBOLS:
                    if _row is not None and "delta" in _row else None)
             _gm = (float(_row["gamma"].iloc[0])
                    if _row is not None and "gamma" in _row else None)
+            # Risk for a seller: the average intrinsic value at each 10-year
+            # path's worst point before expiry, all paths counted.
+            _mae = None
+            if not _synth and BASIS.get("10_drift") is not None:
+                _mae = round(worst_intrinsic_at(BASIS["10_drift"], K, nd, up), 4)
             if _synth:
                 cells.append({"k": round(K, 2), "synthetic": True,
                               # The volatility used for this cell's
@@ -339,6 +345,7 @@ for sym in SYMBOLS:
                           "mc5dexp": mce.get("5_drift"),
                           "mc10dexp": mce.get("10_drift"),
                           "pct": round((K / spot - 1) * 100, 1),
+                          "mae": _mae,
                           "iv": round(iv, 4),
                           "p": round(float(f(spot, K, T, iv, mu_rn)), 4),
                           "pexp": round(float(1.0 - below if up else below), 4),
@@ -395,6 +402,7 @@ for sym in SYMBOLS:
                 "asof": str(s["asof"].iloc[0]), "r": float(s["r"].iloc[0]),
                 "clean_pct": round(float(s["soft_ok"].mean() * 100), 1),
                 "n": int(len(s)),
+                "n_paths": N_PATHS,
                 "n_clean": int(s["soft_ok"].sum()),
                 "dq": dq_report(s, sym)}
     print(f"{sym}: spot {spot:.2f}  bars {len(ohlc)}  rows {len(rows)}  "

@@ -102,6 +102,38 @@ download rewrites only that ticker's file, and the page itself never needs
 rebuilding. Each file carries a format version; files written by an older
 version are re-exported from the archive at start-up, without a new download.
 
+## Maps for sellers
+
+Most retail charting answers "where might the price go". A seller of options
+asks something narrower: which strikes pay the most for the risk taken. Three
+color modes serve that question, all built from data the app already has.
+
+- **Time value per day.** Every contract shown is out of the money, so its
+  whole price is time value, and the mid divided by the days left needs no
+  model at all. It is an average over the remaining life; decay speeds up
+  towards expiry. In-the-money contracts are left out on purpose: their time
+  value is not the same as the out-of-the-money contract at the same strike
+  (interest on the strike and dividends come on top), and their quotes are
+  wider.
+- **vs history.** The implied touch probability minus the 10-year bootstrap.
+  Touch rather than expire, because the probability of finishing beyond a
+  strike is dominated by drift, and the trend a stock happened to have over
+  ten years is the least reliable thing history offers. The probability of
+  reaching a level rests mainly on volatility, which persists. The bootstrap
+  ignores the earnings calendar, so expiries just before a report compare
+  against a history that contains earnings moves the market is not pricing.
+- **Premium per unit risk.** The mid divided by the average intrinsic value at
+  the worst point of each historical path before expiry. Path extremes depend
+  on volatility far more than on trend, like the touch probability. The
+  extremes are already sorted for the touch counts, so a running sum gives
+  every strike in one binary search.
+
+Open interest is colored by letting the strongest nearby contract win, so a
+large position stays a wall instead of being averaged away. The two seller
+maps are ratios and differences, where that rule would let a high value spill
+over its neighbors; they are blended by inverse distance instead, so each
+contract shows its own value at its own position.
+
 ## Rendering
 
 Ten years of daily candles at a close zoom are over a hundred thousand pixels
@@ -118,3 +150,10 @@ arrive.
 The color ramp is re-parameterized so that perceived lightness falls linearly
 with probability. Open interest and spread span orders of magnitude and use a
 logarithmic scale; implied volatility stays linear.
+
+The strike range is the same for every expiry so rows line up, and each side
+reaches as far as the widest expiry on that side. A sparse expiry, typically a
+quarterly with few strikes, would otherwise cut the whole chart short. Where
+the data ends, the maps keep their edge values and fade to transparent, past
+the last expiry and at the top and bottom of the range, so the cone never
+stops on a line. Only transparency changes in those margins.

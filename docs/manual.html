@@ -12,7 +12,7 @@
 <meta property="og:title" content="OptionsCone manual">
 <meta property="og:description" content="Installing OptionsCone, reading the probability cone and using every control.">
 <meta property="og:url" content="https://nikkn.github.io/OptionsCone/manual.html">
-<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/social.png?v=3">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/social.png?v=4">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="OptionsCone: a probability cone over the listed option strikes of a stock, with implied and historical contour lines.">
@@ -126,12 +126,14 @@
     <h2 id="mouse">Mouse and keyboard</h2>
     <div class="table-scroll"><table>
       <tr><th>Input</th><th>Action</th></tr>
+      <tr><td>Click a dot</td><td>Select that contract: it is marked and its tooltip stays open while you switch color modes</td></tr>
+      <tr><td>Click it again, click empty space, or <kbd>Esc</kbd></td><td>Clear the selection</td></tr>
       <tr><td>Drag left or right</td><td>Scroll through time</td></tr>
       <tr><td>Drag up or down</td><td>Slide the price range, to bring a part of the cone into view</td></tr>
       <tr><td><kbd>Ctrl</kbd> or <kbd>Shift</kbd> + wheel</td><td>Zoom in and out around the pointer</td></tr>
       <tr><td>Wheel over a probability box</td><td>Change that target probability</td></tr>
       <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Change the downside target (and the upside too while linked)</td></tr>
-      <tr><td><kbd>F</kbd></td><td>Enter or leave fullscreen (<kbd>Esc</kbd> also leaves)</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Enter or leave fullscreen (<kbd>Esc</kbd> also leaves, after clearing a selection)</td></tr>
       <tr><td><kbd>T</kbd> <kbd>H</kbd> <kbd>V</kbd></td><td>Trend line, horizontal line, drawing off</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> or <kbd>Backspace</kbd></td><td>Remove the last drawing</td></tr>
     </table></div>
@@ -148,6 +150,8 @@
       <li><strong>premium/risk:</strong> the mid, the average worst intrinsic value on the 10-year paths, the share of paths that reach the strike, and the ratio</li>
     </ul>
     <p>A warning line appears if the quote was flagged by the checks.</p>
+    <h3 id="select">Comparing one contract across maps</h3>
+    <p>Click a dot to select the contract. It gets a ring with four ticks that stays visible on every color mode, and its tooltip stays open. Switch through the color modes and the tooltip changes with them, so you can read one contract's probability, volatility, open interest, spread, time value and seller figures in a few clicks. Hovering another dot shows that one for a moment; the selected tooltip comes back when you move away. The selection follows the contract through zooming and scrolling and is kept per ticker.</p>
     <p>Delta and gamma are computed on the same American binomial tree as the implied volatility, so they can be compared with your broker's. Small differences come from the broker's own dividend and rate assumptions.</p>
 
     <h2 id="table">Data table</h2>

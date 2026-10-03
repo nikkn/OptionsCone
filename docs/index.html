@@ -13,7 +13,7 @@
 <meta property="og:title" content="OptionsCone: what the option market expects from your stock">
 <meta property="og:description" content="The full option chain on the price chart: probabilities, IV, open interest and spreads. Free and open source.">
 <meta property="og:url" content="https://nikkn.github.io/OptionsCone/">
-<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/social.png?v=3">
+<meta property="og:image" content="https://nikkn.github.io/OptionsCone/img/social.png?v=4">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="OptionsCone: a probability cone over the listed option strikes of a stock, with implied and historical contour lines.">
@@ -172,6 +172,22 @@
       <figure>
         <a href="img/chart-spr.png"><img class="shot" src="img/cone-spr.png" width="544" height="760" loading="lazy" alt="Cone colored by bid-ask spread, darker where quotes are tighter."></a>
         <figcaption><strong>Spread.</strong> Darker means tighter quotes, so the contracts you can actually trade stand out.</figcaption>
+      </figure>
+    </div>
+    <h3 style="margin-top:36px">For option sellers</h3>
+    <p class="prose">Three maps answer the seller&#39;s question: which strikes pay the most for the risk taken. Click a contract to select it, then switch maps and its numbers follow.</p>
+    <div class="grid3">
+      <figure>
+        <a href="img/chart-tv.png"><img class="shot" src="img/cone-tv.png" width="544" height="760" loading="lazy" alt="Cone colored by time value per remaining day, darkest near the money for short expiries."></a>
+        <figcaption><strong>Time value per day.</strong> The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value.</figcaption>
+      </figure>
+      <figure>
+        <a href="img/chart-gap.png"><img class="shot" src="img/cone-gap.png" width="544" height="760" loading="lazy" alt="Cone colored blue below spot and red above, comparing implied with historical touch probability."></a>
+        <figcaption><strong>vs history.</strong> The market&#39;s touch probability minus the stock&#39;s own last ten years. Blue where the market prices more risk than history produced, red where less.</figcaption>
+      </figure>
+      <figure>
+        <a href="img/chart-vpr.png"><img class="shot" src="img/cone-vpr.png" width="544" height="760" loading="lazy" alt="Cone colored by premium per unit of historical risk."></a>
+        <figcaption><strong>Premium per unit risk.</strong> The option price divided by the average intrinsic value at the worst point of each historical path. Higher means more premium for the risk history shows.</figcaption>
       </figure>
     </div>
   </section>

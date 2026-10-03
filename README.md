@@ -22,7 +22,8 @@ Where the market and the stock's history disagree, the lines separate.
 
 The cone can also be colored by implied volatility, open interest, bid-ask
 spread, time value per day, the gap between the implied and the historical
-probability, or the premium per unit of historical risk. Hovering a contract shows its probabilities, quote, delta and gamma. A
+probability, or the premium per unit of historical risk. Hovering a contract shows its probabilities, quote, delta and gamma;
+clicking it keeps its numbers on screen while you switch maps. A
 data table lists the values for the whole chain, and the Methods section in the
 app explains every number.
 

@@ -145,3 +145,6 @@ td:first-child { white-space: nowrap; }
 
 .mapfig { margin: 0; }
 .mapfig figcaption { font-size: 14px; color: var(--ink-2); margin-top: 9px; line-height: 1.55; }
+
+/* the section after the hero maps gets the same rule as the others, with more air */
+.maps ~ section:first-of-type { border-top: 1px solid var(--line); margin-top: 56px; }

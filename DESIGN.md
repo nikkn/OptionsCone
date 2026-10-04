@@ -115,7 +115,7 @@ color modes serve that question, all built from data the app already has.
   value is not the same as the out-of-the-money contract at the same strike
   (interest on the strike and dividends come on top), and their quotes are
   wider.
-- **vs history.** The implied touch probability minus the 10-year bootstrap.
+- **Implied vs realized.** The implied touch probability minus the 10-year bootstrap.
   Touch rather than expire, because the probability of finishing beyond a
   strike is dominated by drift, and the trend a stock happened to have over
   ten years is the least reliable thing history offers. The probability of

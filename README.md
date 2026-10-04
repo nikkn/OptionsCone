@@ -1,8 +1,11 @@
 # OptionsCone
 
-How likely is a stock to touch a given price before a given date? OptionsCone
-answers that for every listed option contract of a ticker, and draws the
-answer as a cone on the price chart.
+Probability, premium and positioning heatmaps for any stock with options.
+
+OptionsCone turns the option chain of the next six months into heatmaps on the
+price chart: touch and expiry probabilities, implied volatility, open interest,
+spreads, time value and premium relative to risk. It compares what the option
+market implies with what the stock realized over the last five and ten years.
 
 **Website, manual and methods: https://nikkn.github.io/OptionsCone/**
 
@@ -18,14 +21,14 @@ three models:
 - **5y** and **10y**: a block bootstrap of the stock's own daily history over
   the last five or ten years
 
-Where the market and the stock's history disagree, the lines separate.
+Where the market and what the stock realized disagree, the lines separate.
 
 The cone can also be colored by implied volatility, open interest, bid-ask
-spread, time value per day, the gap between the implied and the historical
-probability, or the premium per unit of historical risk. Hovering a contract shows its probabilities, quote, delta and gamma;
-clicking it keeps its numbers on screen while you switch maps. A
-data table lists the values for the whole chain, and the Methods section in the
-app explains every number.
+spread, time value per day, implied vs realized touch probability, or the
+premium per dollar of realized risk. Hovering a contract shows its
+probabilities, quote, delta and gamma; clicking it keeps its numbers on screen
+while you switch maps. A data table lists the values for the whole chain, and
+the Methods section in the app explains every number.
 
 ## Download
 

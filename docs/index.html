@@ -90,14 +90,14 @@
   </div>
 
   <div class="maps">
-    <a class="map" href="img/avgo/chart-p.png"><span>Touch probability</span><img src="img/avgo/cone-p.png" width="550" height="840" alt="Broadcom (AVGO), Touch probability: dark near the money, fading where a touch becomes unlikely."></a>
-    <a class="map" href="img/avgo/chart-iv.png"><span>Implied volatility</span><img src="img/avgo/cone-iv.png" width="550" height="840" alt="Broadcom (AVGO), Implied volatility per contract: skew and term structure."></a>
-    <a class="map" href="img/avgo/chart-oi.png"><span>Open interest</span><img src="img/avgo/cone-oi.png" width="550" height="840" alt="Broadcom (AVGO), Open interest: where the large positions sit."></a>
-    <a class="map" href="img/avgo/chart-tv.png"><span>Time value per day</span><img src="img/avgo/cone-tv.png" width="550" height="840" alt="Broadcom (AVGO), Time value per remaining day, darkest near the money for short expiries."></a>
-    <a class="map" href="img/avgo/chart-gap.png"><span>Market vs history</span><img src="img/avgo/cone-gap.png" width="550" height="840" alt="Broadcom (AVGO), Implied minus historical touch probability: blue where the market prices more risk than history, red where less."></a>
-    <a class="map" href="img/avgo/chart-vpr.png"><span>Premium per unit risk</span><img src="img/avgo/cone-vpr.png" width="550" height="840" alt="Broadcom (AVGO), Option price relative to the average worst intrinsic value on the historical paths."></a>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-p.png"><span>Touch probability</span><img src="img/avgo/cone-p.png" width="550" height="840" alt="Broadcom (AVGO), Touch probability: dark near the money, fading where a touch becomes unlikely."></a><figcaption>The chance that the price touches each strike before that expiry, from the option prices: dark near the money, fading where a touch becomes unlikely.</figcaption></figure>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-iv.png"><span>Implied volatility</span><img src="img/avgo/cone-iv.png" width="550" height="840" alt="Broadcom (AVGO), Implied volatility per contract: skew and term structure."></a><figcaption>Each contract&#39;s own volatility, so skew and the term structure show at a glance. The badges above each expiry give its model-free volatility.</figcaption></figure>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-oi.png"><span>Open interest</span><img src="img/avgo/cone-oi.png" width="550" height="840" alt="Broadcom (AVGO), Open interest: where the large positions sit."></a><figcaption>Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable.</figcaption></figure>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-tv.png"><span>Time value per day</span><img src="img/avgo/cone-tv.png" width="550" height="840" alt="Broadcom (AVGO), Time value per remaining day, darkest near the money for short expiries."></a><figcaption>The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value.</figcaption></figure>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-gap.png"><span>Market vs history</span><img src="img/avgo/cone-gap.png" width="550" height="840" alt="Broadcom (AVGO), Implied minus historical touch probability: blue where the market prices more risk than history, red where less."></a><figcaption>The market&#39;s touch probability minus the stock&#39;s own last ten years. Blue where the market prices more risk than history produced, red where less.</figcaption></figure>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-vpr.png"><span>Premium per unit risk</span><img src="img/avgo/cone-vpr.png" width="550" height="840" alt="Broadcom (AVGO), Option price relative to the average worst intrinsic value on the historical paths."></a><figcaption>The option price divided by the average intrinsic value at the worst point of each historical path. Higher means more premium for the risk history shows.</figcaption></figure>
   </div>
-  <p class="maps-note">Broadcom (AVGO), 29 September 2026. Lines: the 30% touch contour from option prices (orange) and from the last five years (green). Click a map for the full chart.</p>
+  <p class="maps-note">Broadcom (AVGO), 29 September 2026. Lines: the 30% touch contour from option prices (orange) and from the last five years (green). Click a map for the full chart. In the app, hover a contract for its numbers and click it to keep them on screen while you switch maps. A seventh map shows the bid-ask spread.</p>
 
   <section>
     <p class="eyebrow">What you see</p>
@@ -161,51 +161,6 @@
       </div>
     </div>
     <p style="margin-top:22px"><a href="use-cases.html">See worked examples with real numbers</a>. The app shows probabilities, not recommendations.</p>
-  </section>
-
-  <section>
-    <div class="prose">
-      <p class="eyebrow">Why touch</p>
-      <h2>Delta is not a probability</h2>
-      <p>Many traders read a 0.30 delta as "a 30% chance of expiring in the money". Delta is N(d1); the risk-neutral chance of finishing in the money is N(d2). On a volatile stock the gap is wide: a put with a delta of 0.30 can carry a 43% chance of expiring in the money.</p>
-      <p>For a stop level, a price target or a short strike, the more useful question is often whether the price gets there at all. That is the <strong>probability of touch</strong>, roughly twice the probability of finishing beyond the strike. OptionsCone shows touch by default and expiry probability with one click, and shows delta and gamma next to them so the numbers can be checked against your broker.</p>
-    </div>
-  </section>
-
-  <section>
-    <p class="eyebrow">The maps</p>
-    <h2>Color the cone by what matters for the trade</h2>
-    <p class="prose">One cone, seven ways to color it. Hover a contract for its quote, probabilities, delta and gamma; click it to keep its numbers on screen while you switch maps.</p>
-    <div class="grid3">
-      <div class="card">
-        <h3>Implied volatility</h3>
-        <p>Each contract&#39;s own volatility, so skew and the term structure show at a glance. The badges above each expiry give its model-free volatility. <a href="img/avgo/chart-iv.png">Full chart</a></p>
-      </div>
-      <div class="card">
-        <h3>Open interest</h3>
-        <p>Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable. <a href="img/avgo/chart-oi.png">Full chart</a></p>
-      </div>
-      <div class="card">
-        <h3>Spread</h3>
-        <p>Darker means tighter quotes, so the contracts you can actually trade stand out. <a href="img/avgo/chart-spr.png">Full chart</a></p>
-      </div>
-    </div>
-    <h3 style="margin-top:30px">For option sellers</h3>
-    <p class="prose">Three maps answer the seller&#39;s question: which strikes pay the most for the risk taken.</p>
-    <div class="grid3">
-      <div class="card">
-        <h3>Time value per day</h3>
-        <p>The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value. <a href="img/avgo/chart-tv.png">Full chart</a></p>
-      </div>
-      <div class="card">
-        <h3>vs history</h3>
-        <p>The market&#39;s touch probability minus the stock&#39;s own last ten years. Blue where the market prices more risk than history produced, red where less. <a href="img/avgo/chart-gap.png">Full chart</a></p>
-      </div>
-      <div class="card">
-        <h3>Premium per unit risk</h3>
-        <p>The option price divided by the average intrinsic value at the worst point of each historical path. Higher means more premium for the risk history shows. <a href="img/avgo/chart-vpr.png">Full chart</a></p>
-      </div>
-    </div>
   </section>
 
   <section>

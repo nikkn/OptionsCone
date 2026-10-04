@@ -142,3 +142,6 @@ td:first-child { white-space: nowrap; }
   background: #c2410c; color: #fff; font: 600 13px/23px var(--sans); text-align: center; }
 .marks strong { color: var(--ink); }
 @media (max-width: 860px) { .marks { grid-template-columns: 1fr; } }
+
+.mapfig { margin: 0; }
+.mapfig figcaption { font-size: 14px; color: var(--ink-2); margin-top: 9px; line-height: 1.55; }

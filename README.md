@@ -2,12 +2,39 @@
 
 Probability, premium and positioning heatmaps for any stock with options.
 
-OptionsCone turns the option chain of the next six months into heatmaps on the
-price chart: touch and expiry probabilities, implied volatility, open interest,
-spreads, time value and premium relative to risk. It compares what the option
-market implies with what the stock realized over the last five and ten years.
+OptionsCone turns the option chain into heatmaps on the price chart: touch and
+expiry probabilities, implied volatility, open interest, spreads, time value
+and premium relative to risk. It compares what the option market implies with
+what the stock realized over the last five and ten years.
 
 **Website, manual and methods: https://nikkn.github.io/OptionsCone/**
+
+<table>
+<tr>
+<td width="50%" valign="top"><a href="docs/img/avgo/chart-p.png"><img src="docs/img/avgo/cone-p.png" width="300" alt="Broadcom (AVGO), Touch probability: dark near the money, fading where a touch becomes unlikely."></a><br>
+<b>Touch probability</b><br>
+The chance that the price touches each strike before that expiry, from the option prices: dark near the money, fading where a touch becomes unlikely.</td>
+<td width="50%" valign="top"><a href="docs/img/avgo/chart-iv.png"><img src="docs/img/avgo/cone-iv.png" width="300" alt="Broadcom (AVGO), Implied volatility per contract: skew and term structure."></a><br>
+<b>Implied volatility</b><br>
+Each contract's own volatility, so skew and the term structure show at a glance. The badges above each expiry give its model-free volatility.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/img/avgo/chart-oi.png"><img src="docs/img/avgo/cone-oi.png" width="300" alt="Broadcom (AVGO), Open interest: where the large positions sit."></a><br>
+<b>Open interest</b><br>
+Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable.</td>
+<td width="50%" valign="top"><a href="docs/img/avgo/chart-tv.png"><img src="docs/img/avgo/cone-tv.png" width="300" alt="Broadcom (AVGO), Time value per remaining day, darkest near the money for short expiries."></a><br>
+<b>Time value per day</b><br>
+The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/img/avgo/chart-gap.png"><img src="docs/img/avgo/cone-gap.png" width="300" alt="Broadcom (AVGO), Implied minus realized touch probability: blue where the market prices in a higher probability than the stock realized, red where lower."></a><br>
+<b>Implied vs realized</b><br>
+The market's touch probability minus how often 10,000 paths simulated from the stock's last ten years touch the strike. Blue where the market prices in a higher probability (a potential opportunity for sellers), red where lower.</td>
+<td width="50%" valign="top"><a href="docs/img/avgo/chart-vpr.png"><img src="docs/img/avgo/cone-vpr.png" width="300" alt="Broadcom (AVGO), Option price relative to the average worst intrinsic value on the historical paths."></a><br>
+<b>Premium per unit risk</b><br>
+The option price divided by the average worst-case depth in the money across 10,000 paths simulated from the stock's last ten years. Higher means more premium per dollar of realized risk.</td>
+</tr>
+</table>
 
 ![OptionsCone showing Broadcom (AVGO)](docs/screenshot.png)
 

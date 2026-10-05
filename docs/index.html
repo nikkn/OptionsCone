@@ -81,7 +81,7 @@
 
   <div class="hero">
     <h1>Probability, premium and positioning heatmaps for any stock with options.</h1>
-    <p class="lede">OptionsCone turns the option chain into heatmaps on the price chart: touch and expiry probabilities, implied volatility, open interest, spreads, time value and premium relative to risk, across the option chain of the next six months. It compares what the option market implies with what the stock&#39;s own history says. For option traders and for anyone who holds stocks. Free and open source, for Windows.</p>
+    <p class="lede">OptionsCone turns the option chain into heatmaps on the price chart: touch and expiry probabilities, implied volatility, open interest, spreads, time value and premium relative to risk. It compares what the option market implies with what the stock&#39;s own history says. For option traders and for anyone who holds stocks. Free and open source, for Windows.</p>
     <div class="btn-row">
       <a class="btn primary" href="https://github.com/nikkn/OptionsCone/releases/latest">Download for Windows</a>
       <a class="btn" href="https://github.com/nikkn/OptionsCone">Source code</a>
@@ -94,13 +94,13 @@
     <figure class="mapfig"><a class="map" href="img/avgo/chart-iv.png"><span>Implied volatility</span><img src="img/avgo/cone-iv.png" width="550" height="840" alt="Broadcom (AVGO), Implied volatility per contract: skew and term structure."></a><figcaption>Each contract&#39;s own volatility, so skew and the term structure show at a glance. The badges above each expiry give its model-free volatility.</figcaption></figure>
     <figure class="mapfig"><a class="map" href="img/avgo/chart-oi.png"><span>Open interest</span><img src="img/avgo/cone-oi.png" width="550" height="840" alt="Broadcom (AVGO), Open interest: where the large positions sit."></a><figcaption>Where the large positions sit, on a logarithmic scale so both small and large strikes stay readable.</figcaption></figure>
     <figure class="mapfig"><a class="map" href="img/avgo/chart-tv.png"><span>Time value per day</span><img src="img/avgo/cone-tv.png" width="550" height="840" alt="Broadcom (AVGO), Time value per remaining day, darkest near the money for short expiries."></a><figcaption>The option price divided by the days left, an average over the remaining life. Every contract shown is out of the money, so its whole price is time value.</figcaption></figure>
-    <figure class="mapfig"><a class="map" href="img/avgo/chart-gap.png"><span>Implied vs realized</span><img src="img/avgo/cone-gap.png" width="550" height="840" alt="Broadcom (AVGO), Implied minus realized touch probability: blue where the market prices in a higher probability than the stock realized, red where lower."></a><figcaption>The market&#39;s touch probability minus the realized one from the stock&#39;s last ten years. Blue where the market prices in a higher probability than the stock realized (a potential opportunity for sellers), red where lower.</figcaption></figure>
+    <figure class="mapfig"><a class="map" href="img/avgo/chart-gap.png"><span>Implied vs realized</span><img src="img/avgo/cone-gap.png" width="550" height="840" alt="Broadcom (AVGO), Implied minus realized touch probability: blue where the market prices in a higher probability than the stock realized, red where lower."></a><figcaption>The market&#39;s touch probability minus how often 10,000 paths simulated from the stock&#39;s last ten years touch the strike. Blue where the market prices in a higher probability (a potential opportunity for sellers), red where lower.</figcaption></figure>
     <figure class="mapfig"><a class="map" href="img/avgo/chart-vpr.png"><span>Premium per unit risk</span><img src="img/avgo/cone-vpr.png" width="550" height="840" alt="Broadcom (AVGO), Option price relative to the average worst intrinsic value on the historical paths."></a><figcaption>The option price divided by the average worst-case depth in the money across 10,000 paths simulated from the stock&#39;s last ten years. Higher means more premium per dollar of realized risk.</figcaption></figure>
   </div>
 
   <section>
     <p class="eyebrow">What you see</p>
-    <h2>One chart for the whole option chain</h2>
+    <h2>One chart for the option chain</h2>
     <div class="grid3">
       <div class="card">
         <h3>The cone</h3>

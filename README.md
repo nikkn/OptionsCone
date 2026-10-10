@@ -150,8 +150,8 @@ returns. They are not forecasts and not financial advice. Use at your own risk.
 ## Contact
 
 Bug reports and suggestions: open an
-[issue](https://github.com/nikkn/OptionsCone/issues) or write to
-contact.aquart@gmail.com.
+[issue](https://github.com/nikkn/OptionsCone/issues) or reach me on X,
+[@nikkn_alexander](https://x.com/nikkn_alexander).
 
 ## License
 

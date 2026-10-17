@@ -7,20 +7,15 @@ expiry probabilities, implied volatility, open interest, spreads, time value
 and premium relative to risk. It compares what the option market implies with
 what the stock realized. For option traders and for anyone who holds stocks.
 
-**Website, manual and methods: https://nikolai-alexander.com/OptionsCone/**
+**Website and manual: https://nikolai-alexander.com/OptionsCone/**
 
 ![OptionsCone showing Broadcom (AVGO)](https://nikolai-alexander.com/OptionsCone/img/avgo/app.png)
 
 ## Download
 
-Download `OptionsCone.exe` from the
-[latest release](https://github.com/nikkn/OptionsCone/releases/latest) and run
-it. No installation is needed.
-
-- Windows 10 and 11
-- The executable is not code-signed, so Windows SmartScreen may warn on the
-  first start. Click **More info**, then **Run anyway**. Each release lists a
-  SHA-256 checksum of the file.
+Available soon for Windows 10 and 11, as a free download with an optional
+Pro upgrade. Star or watch this repository to hear when the first release
+is out.
 
 ## Free and Pro
 

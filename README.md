@@ -24,7 +24,7 @@ inside the app, and your tickers and settings are kept.
 prices, and the maps for implied volatility, open interest, volume, bid-ask
 spread and time value per day.
 
-**[Pro](https://nikolai-alexander.com/OptionsCone/#pro)** adds the Realized Odds 5y and 10y, from
+**[Pro](https://nikolai-alexander.com/OptionsCone/#pro)** adds the realized odds 5y and 10y, from
 industry-standard probability models built on the stock's realized moves of
 the last five and ten years, the implied vs realized and premium per unit of
 risk maps, and the GEX heatmap. 19.90 USD a month or 189 USD a year, cancel

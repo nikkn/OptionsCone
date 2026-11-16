@@ -5,9 +5,11 @@ Probability, premium and positioning heatmaps for any stock with options.
 ### [Download free for Windows](https://licence.optionscone.com/get/free) &middot; [Website](https://nikolai-alexander.com/OptionsCone/) &middot; [OptionsCone Pro](https://nikolai-alexander.com/OptionsCone/#pro)
 
 OptionsCone turns the option chain into heatmaps on the price chart: touch and
-expiry probabilities, implied volatility, open interest, spreads, time value
-and premium relative to risk. It compares what option prices imply with what
-the stock realized. For option traders and for anyone who holds stocks.
+expiry probabilities, implied volatility, open interest, spreads and time value,
+for free. Pro adds the stock's own realized odds, made forward-looking, the
+expected value of every short option at expiration, and how much it can cost
+you for the premium you collect. For option traders and for anyone who holds
+stocks.
 
 [![OptionsCone showing Broadcom (AVGO)](https://nikolai-alexander.com/OptionsCone/img/avgo/app.png)](https://nikolai-alexander.com/OptionsCone/)
 
@@ -16,7 +18,8 @@ the stock realized. For option traders and for anyone who holds stocks.
 Free for Windows 10 and 11: **[download OptionsCone](https://licence.optionscone.com/get/free)**
 or get it from the [website](https://nikolai-alexander.com/OptionsCone/). It installs
 in a few seconds, without admin rights. New versions install themselves from
-inside the app, and your tickers and settings are kept.
+inside the app, and your tickers and settings are kept. If Windows warns
+about an unknown app, click *More info*, then *Run anyway*.
 
 ## Free and Pro
 
@@ -24,11 +27,10 @@ inside the app, and your tickers and settings are kept.
 prices, and the maps for implied volatility, open interest, volume, bid-ask
 spread and time value per day.
 
-**[Pro](https://nikolai-alexander.com/OptionsCone/#pro)** adds the realized odds 5y and 10y, from
-industry-standard probability models built on the stock's realized moves of
-the last five and ten years, the implied vs realized and premium per unit of
-risk maps, and the GEX heatmap. 19.90 USD a month or 189 USD a year, cancel
-any time. Pro is installed from inside the app.
+**[Pro](https://nikolai-alexander.com/OptionsCone/#pro)** adds the realized odds 10y and adaptive, the
+implied vs realized map, the expected value and the average and tail risk per
+premium of every short option, the GEX heatmap, and every new function as it
+comes. Pro is installed from inside the app.
 
 ## Guides
 
